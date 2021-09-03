@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "79311592642",
+    "project_id": "product-price-tracking",
+    "storage_bucket": "product-price-tracking.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79311592642:android:5a5b0619bd1a67c0872f5b",
+        "android_client_info": {
+          "package_name": "com.example.product_price_tracking_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "79311592642-n6cjp35dhajv60kke8kuj34joi009s6d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhVr1BpekGUjpFv_gLHNVCvFRhvsD5biY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "79311592642-n6cjp35dhajv60kke8kuj34joi009s6d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
