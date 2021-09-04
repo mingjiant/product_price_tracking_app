@@ -89,7 +89,7 @@ class FavouriteScreen extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              Navigator.pushReplacementNamed(context, '/');
+              Navigator.pushReplacementNamed(context, '/home');
               break;
             case 1:
               Navigator.pushReplacementNamed(context, '/product-category');

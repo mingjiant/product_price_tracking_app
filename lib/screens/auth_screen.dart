@@ -1,19 +1,78 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum AuthMode { Signup, Login }
-
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   static const routeName = '/auth';
+
+  @override
+  _AuthScreenState createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  final _auth = FirebaseAuth.instance;
+
+  var _isLoading = false;
+
+  void _submitAuthForm(
+    String email,
+    String password,
+    bool isLogin,
+    BuildContext context,
+  ) async {
+    UserCredential authResult;
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      if (isLogin) {
+        authResult = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      } else {
+        authResult = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(authResult.user.uid)
+            .set({
+          'email': email,
+        });
+      }
+    } on PlatformException catch (error) {
+      var message = 'An error occurred, please check your credentials!';
+
+      if (error.message != null) {
+        message = error.message;
+      }
+
+      // Scaffold.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text(message),
+      //     backgroundColor: Theme.of(context).errorColor,
+      //   ),
+      // );
+
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
+      print(error);
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    // final transformConfig = Matrix4.rotationZ(-8 * pi / 180);
-    // transformConfig.translate(-10.0);
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Container(
@@ -65,7 +124,10 @@ class AuthScreen extends StatelessWidget {
                   ),
                   Flexible(
                     flex: deviceSize.width > 600 ? 2 : 1,
-                    child: AuthCard(),
+                    child: AuthCard(
+                      _submitAuthForm,
+                      _isLoading,
+                    ),
                   ),
                 ],
               ),
@@ -78,52 +140,45 @@ class AuthScreen extends StatelessWidget {
 }
 
 class AuthCard extends StatefulWidget {
-  const AuthCard({
-    Key key,
-  }) : super(key: key);
+  AuthCard(
+    this.submitFn,
+    this.isLoading,
+  );
+
+  final bool isLoading;
+
+  final void Function(
+    String email,
+    String password,
+    bool isLogin,
+    BuildContext context,
+  ) submitFn;
 
   @override
   _AuthCardState createState() => _AuthCardState();
 }
 
 class _AuthCardState extends State<AuthCard> {
-  final GlobalKey<FormState> _formKey = GlobalKey();
-  AuthMode _authMode = AuthMode.Login;
-  Map<String, String> _authData = {
-    'email': '',
-    'password': '',
-  };
-  var _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+
+  var _isLogin = true;
+  var _userEmail = '';
+  var _userPassword = '';
+
   final _passwordController = TextEditingController();
 
   void _submit() {
-    if (!_formKey.currentState.validate()) {
-      // Invalid!
-      return;
-    }
-    _formKey.currentState.save();
-    setState(() {
-      _isLoading = true;
-    });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
+    final isValid = _formKey.currentState.validate();
+    FocusScope.of(context).unfocus();
 
-  void _switchAuthMode() {
-    if (_authMode == AuthMode.Login) {
-      setState(() {
-        _authMode = AuthMode.Signup;
-      });
-    } else {
-      setState(() {
-        _authMode = AuthMode.Login;
-      });
+    if (isValid) {
+      _formKey.currentState.save();
+      widget.submitFn(
+        _userEmail.trim(),
+        _userPassword,
+        _isLogin,
+        context,
+      );
     }
   }
 
@@ -136,9 +191,8 @@ class _AuthCardState extends State<AuthCard> {
       ),
       elevation: 8.0,
       child: Container(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
-        constraints:
-            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
+        height: !_isLogin ? 320 : 260,
+        constraints: BoxConstraints(minHeight: !_isLogin ? 320 : 260),
         width: deviceSize.width * 0.75,
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -147,6 +201,7 @@ class _AuthCardState extends State<AuthCard> {
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  key: ValueKey('email'),
                   decoration: InputDecoration(labelText: 'E-Mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
@@ -156,29 +211,30 @@ class _AuthCardState extends State<AuthCard> {
                     return null;
                   },
                   onSaved: (value) {
-                    _authData['email'] = value;
+                    _userEmail = value;
                   },
                 ),
                 TextFormField(
+                  key: ValueKey('password'),
                   decoration: InputDecoration(labelText: 'Password'),
                   obscureText: true,
                   controller: _passwordController,
                   validator: (value) {
-                    if (value.isEmpty || value.length < 5) {
+                    if (value.isEmpty || value.length < 8) {
                       return 'Password is too short!';
                     }
                     return null;
                   },
                   onSaved: (value) {
-                    _authData['password'] = value;
+                    _userPassword = value;
                   },
                 ),
-                if (_authMode == AuthMode.Signup)
+                if (!_isLogin)
                   TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
+                    enabled: !_isLogin,
                     decoration: InputDecoration(labelText: 'Confirm Password'),
                     obscureText: true,
-                    validator: _authMode == AuthMode.Signup
+                    validator: !_isLogin
                         ? (value) {
                             if (value != _passwordController.text) {
                               return 'Passwords do not match!';
@@ -190,12 +246,10 @@ class _AuthCardState extends State<AuthCard> {
                 SizedBox(
                   height: 20,
                 ),
-                if (_isLoading)
-                  CircularProgressIndicator()
-                else
+                if (widget.isLoading) CircularProgressIndicator(),
+                if (!widget.isLoading)
                   RaisedButton(
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                    child: Text(_isLogin ? 'Login' : 'Sign Up'),
                     onPressed: _submit,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -205,14 +259,21 @@ class _AuthCardState extends State<AuthCard> {
                     color: Theme.of(context).primaryColor,
                     textColor: Theme.of(context).primaryTextTheme.button.color,
                   ),
-                FlatButton(
-                  child: Text(
-                      '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  textColor: Theme.of(context).primaryColor,
-                ),
+                if (!widget.isLoading)
+                  FlatButton(
+                    child: Text(_isLogin
+                        ? 'Create new account'
+                        : 'Already have an account'),
+                    onPressed: () {
+                      setState(() {
+                        _isLogin = !_isLogin;
+                      });
+                    },
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textColor: Theme.of(context).primaryColor,
+                  ),
               ],
             ),
           ),

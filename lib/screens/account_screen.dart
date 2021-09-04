@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountScreen extends StatelessWidget {
   static const routeName = '/account';
+
+  Future signOut() async {
+    try {
+      return await FirebaseAuth.instance.signOut();
+    } catch (error) {
+      print(error.toString());
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +101,10 @@ class AccountScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: () {},
+              onTap: () {
+                signOut();
+                Navigator.pushReplacementNamed(context, '/');
+              },
             ),
             Divider(
               color: Theme.of(context).primaryColor,
@@ -146,7 +159,7 @@ class AccountScreen extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              Navigator.pushReplacementNamed(context, '/');
+              Navigator.pushReplacementNamed(context, '/home');
               break;
             case 1:
               Navigator.pushReplacementNamed(context, '/product-category');

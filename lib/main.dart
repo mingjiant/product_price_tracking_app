@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -12,6 +13,7 @@ import './screens/favourite_screen.dart';
 import './screens/account_screen.dart';
 import './screens/manage_product_screen.dart';
 import './screens/auth_screen.dart';
+import './screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +35,22 @@ class MyApp extends StatelessWidget {
             shadowColor: generateMaterialColor(Palette.shadow),
             errorColor: Colors.red,
           ),
-          home: HomeScreen(),
+          home: appSnapshot.connectionState != ConnectionState.done
+              ? SplashScreen()
+              : StreamBuilder(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (ctx, userSnapshot) {
+                    if (userSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return SplashScreen();
+                    }
+                    if (userSnapshot.hasData) {
+                      return HomeScreen();
+                    }
+                    return AuthScreen();
+                  }),
           routes: {
+            HomeScreen.routeName: (ctx) => HomeScreen(),
             ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
             ProductListingScreen.routeName: (ctx) => ProductListingScreen(),
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),

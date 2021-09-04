@@ -5,6 +5,8 @@ import '../widgets/ads_banner.dart';
 import '../widgets/products_grid.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const routeName = '/home';
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
