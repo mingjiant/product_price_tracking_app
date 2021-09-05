@@ -12,7 +12,7 @@ const PRODUCT_CATEGORIES = const [
   Category(id: 'c7', title: 'Pets'),
 ];
 
-final List CATEGORIES_ICON = [
+final List categoriesIcon = [
   Icon(Icons.fastfood),
   Icon(Icons.local_drink),
   Icon(Icons.icecream),

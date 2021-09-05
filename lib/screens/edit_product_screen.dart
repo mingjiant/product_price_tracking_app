@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/product_image_picker.dart';
 import '../category_list.dart';
 import '../retailer_list.dart';
 
@@ -79,32 +80,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 350,
-                    height: 190,
-                    margin: EdgeInsets.symmetric(vertical: 10.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      shape: BoxShape.rectangle,
-                      border: Border.all(color: Theme.of(context).primaryColor),
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).shadowColor,
-                          spreadRadius: 2,
-                          blurRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.photo_camera,
-                      color: Colors.white,
-                      size: 45,
-                    ),
-                  ),
-                ),
+                ProductImagePicker(),
                 Container(
                   alignment: Alignment.centerLeft,
                   child: Text(

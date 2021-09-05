@@ -55,7 +55,7 @@ class ProductCategoryScreen extends StatelessWidget {
                     itemCount: categoryTitle.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        leading: CATEGORIES_ICON[index],
+                        leading: categoriesIcon[index],
                         title: Text(
                           categoryTitle[index],
                           style: TextStyle(fontWeight: FontWeight.bold),
