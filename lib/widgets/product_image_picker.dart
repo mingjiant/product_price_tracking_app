@@ -13,7 +13,7 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
 
   void _pickImage() async {
     final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.camera);
+    final pickedImage = await picker.getImage(source: ImageSource.camera);
     final pickedImageFile = File(pickedImage.path);
     setState(() {
       Navigator.of(context).pop();
@@ -23,7 +23,7 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
 
   void _pickImageGallery() async {
     final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
     final pickedImageFile = File(pickedImage.path);
     setState(() {
       Navigator.of(context).pop();

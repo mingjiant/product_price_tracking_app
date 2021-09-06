@@ -21,7 +21,7 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isLogin,
     BuildContext context,
   ) async {
-    UserCredential authResult;
+    AuthResult authResult;
 
     try {
       setState(() {
@@ -37,10 +37,10 @@ class _AuthScreenState extends State<AuthScreen> {
           email: email,
           password: password,
         );
-        await FirebaseFirestore.instance
+        await Firestore.instance
             .collection('users')
-            .doc(authResult.user.uid)
-            .set({
+            .document(authResult.user.uid)
+            .setData({
           'email': email,
         });
       }

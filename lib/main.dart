@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import './helpers/material_color_generator.dart';
 
@@ -21,46 +20,48 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  // Future<void> initializeDefault() async {
+  //   FirebaseApp app = await Firebase.initializeApp();
+  //   assert(app != null);
+  //   print('Initialized default app $app');
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initialization,
-      builder: (context, appSnapshot) {
-        return MaterialApp(
-          title: 'EasyTrack',
-          theme: ThemeData(
-            primarySwatch: generateMaterialColor(Palette.primary),
-            shadowColor: generateMaterialColor(Palette.shadow),
-            errorColor: Colors.red,
-          ),
-          home: appSnapshot.connectionState != ConnectionState.done
-              ? SplashScreen()
-              : StreamBuilder(
-                  stream: FirebaseAuth.instance.authStateChanges(),
-                  builder: (ctx, userSnapshot) {
-                    if (userSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return SplashScreen();
-                    }
-                    if (userSnapshot.hasData) {
-                      return HomeScreen();
-                    }
-                    return AuthScreen();
-                  }),
-          routes: {
-            HomeScreen.routeName: (ctx) => HomeScreen(),
-            ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
-            ProductListingScreen.routeName: (ctx) => ProductListingScreen(),
-            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-            EditProductScreen.routeName: (ctx) => EditProductScreen(),
-            FavouriteScreen.routeName: (ctx) => FavouriteScreen(),
-            AccountScreen.routeName: (ctx) => AccountScreen(),
-            ManageProductScreen.routeName: (ctx) => ManageProductScreen(),
-            AuthScreen.routeName: (ctx) => AuthScreen(),
-          },
-        );
+    return
+        // FutureBuilder(
+        //   future: initializeDefault(),
+        //   builder: (context, appSnapshot) {
+        //     return
+        MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'EasyTrack',
+      theme: ThemeData(
+        primarySwatch: generateMaterialColor(Palette.primary),
+        shadowColor: generateMaterialColor(Palette.shadow),
+        errorColor: Colors.red,
+      ),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.onAuthStateChanged,
+          builder: (ctx, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return SplashScreen();
+            }
+            if (userSnapshot.hasData) {
+              return HomeScreen();
+            }
+            return AuthScreen();
+          }),
+      routes: {
+        HomeScreen.routeName: (ctx) => HomeScreen(),
+        ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
+        ProductListingScreen.routeName: (ctx) => ProductListingScreen(),
+        ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+        EditProductScreen.routeName: (ctx) => EditProductScreen(),
+        FavouriteScreen.routeName: (ctx) => FavouriteScreen(),
+        AccountScreen.routeName: (ctx) => AccountScreen(),
+        ManageProductScreen.routeName: (ctx) => ManageProductScreen(),
+        AuthScreen.routeName: (ctx) => AuthScreen(),
       },
     );
   }

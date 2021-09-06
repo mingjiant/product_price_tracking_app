@@ -26,7 +26,7 @@ class ManageProductItem extends StatelessWidget {
           ),
         ),
         leading: CircleAvatar(
-          foregroundImage: AssetImage('./assets/images/100plus.jpg'),
+          backgroundImage: AssetImage('./assets/images/100plus.jpg'),
         ),
         trailing: Container(
           width: 100,
