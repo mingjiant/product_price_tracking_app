@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../widgets/product_image_picker.dart';
-// import '../widgets/retailer_dialog.dart';
+import '../widgets/retailer_dialog.dart';
 import '../category_list.dart';
 
-class EditProductScreen extends StatefulWidget {
-  static const routeName = '/edit-product';
+class AddProductScreen extends StatefulWidget {
+  static const routeName = '/add-product';
 
   @override
-  _EditProductScreenState createState() => _EditProductScreenState();
+  _AddProductScreenState createState() => _AddProductScreenState();
 }
 
-class _EditProductScreenState extends State<EditProductScreen> {
+class _AddProductScreenState extends State<AddProductScreen> {
   GlobalKey<FormState> _formKey;
   bool checkboxValue = false;
   var _selectedValue;
@@ -20,6 +20,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
+  var _retailPrice = [];
 
   @override
   void initState() {
@@ -53,21 +54,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _addProduct() {
     FocusScope.of(context).unfocus();
-    // var docRef =
-    //     Firestore.instance.collection('products').document().documentID;
-    // Firestore.instance.collection('products').document(docRef).setData({
-    //   'name': _nameController.text.trim(),
-    //   'barcode': _barcodeController.text.trim(),
-    //   'category': _selectedValue,
-    // });
-    // Firestore.instance
-    //     .collection('products')
-    //     .document(docRef)
-    //     .collection('retailPrice')
-    //     .add({
-    //   'retailer': 'Jaya Grocer',
-    //   'price': '1.44',
-    // });
+    var docRef =
+        Firestore.instance.collection('products').document().documentID;
+    Firestore.instance.collection('products').document(docRef).setData({
+      'name': _nameController.text.trim(),
+      'barcode': _barcodeController.text.trim(),
+      'category': _selectedValue,
+    });
+    for (int i = 0; i < _retailPrice.length; i++)
+      Firestore.instance
+          .collection('products')
+          .document(docRef)
+          .collection('retailPrice')
+          .document()
+          .setData({
+        'retailer': _retailPrice[i][0],
+        'price': _retailPrice[i][1],
+      });
   }
 
   @override
@@ -81,12 +84,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
           },
         ),
         centerTitle: true,
-        title: Text('Edit Product Screen'),
+        title: Text('Add Product Screen'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
               _addProduct();
+              _retailPrice.clear();
               Navigator.pop(context);
             },
           ),
@@ -226,6 +230,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15.0),
                     child: DropdownButtonFormField(
+                      isExpanded: true,
                       value: _selectedValue,
                       items: _categories,
                       hint: Text('Select a category'),
@@ -240,8 +245,47 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ),
                 ),
+                Container(
+                  child: Column(
+                    children: [
+                      // for (int i = 0; i < _retailPrice.length; i++)
+                      // Firestore.instance
+                      //     .collection('products')
+                      //     .document(docRef)
+                      //     .collection('retailPrice')
+                      //     .document()
+                      //     .setData({
+                      //   'retailer': _retailPrice[i][0],
+                      //   'price': _retailPrice[i][1],
+                      // });
+                      _retailPrice.length >= 1
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(_retailPrice[0].toString()),
+                              ],
+                            )
+                          : Container(
+                              child: Text(
+                                'No retail price yet! Click "Add retailer" to add product pricing',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                    ],
+                  ),
+                ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return RetailerDialog();
+                      },
+                    ).then((value) {
+                      _retailPrice.add(value);
+                      print(_retailPrice);
+                    });
+                  },
                   child: Text(
                     'Add retailer',
                     style: TextStyle(

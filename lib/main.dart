@@ -7,7 +7,8 @@ import './screens/home_screen.dart';
 import './screens/product_category_screen.dart';
 import './screens/product_listing_screen.dart';
 import './screens/product_detail_screen.dart';
-import './screens/edit_product_screen.dart';
+import 'screens/add_product_screen.dart';
+import 'screens/edit_product_screen.dart';
 import './screens/favourite_screen.dart';
 import './screens/account_screen.dart';
 import './screens/manage_product_screen.dart';
@@ -20,20 +21,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // Future<void> initializeDefault() async {
-  //   FirebaseApp app = await Firebase.initializeApp();
-  //   assert(app != null);
-  //   print('Initialized default app $app');
-  // }
-
   @override
   Widget build(BuildContext context) {
-    return
-        // FutureBuilder(
-        //   future: initializeDefault(),
-        //   builder: (context, appSnapshot) {
-        //     return
-        MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'EasyTrack',
       theme: ThemeData(
@@ -57,6 +47,7 @@ class MyApp extends StatelessWidget {
         ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
         ProductListingScreen.routeName: (ctx) => ProductListingScreen(),
         ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+        AddProductScreen.routeName: (ctx) => AddProductScreen(),
         EditProductScreen.routeName: (ctx) => EditProductScreen(),
         FavouriteScreen.routeName: (ctx) => FavouriteScreen(),
         AccountScreen.routeName: (ctx) => AccountScreen(),

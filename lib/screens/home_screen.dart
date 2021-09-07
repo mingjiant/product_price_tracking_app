@@ -214,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushReplacementNamed(context, '/product-category');
               break;
             case 2:
-              Navigator.pushNamed(context, '/edit-product');
+              Navigator.pushNamed(context, '/add-product');
               break;
             case 3:
               Navigator.pushReplacementNamed(context, '/favourite');

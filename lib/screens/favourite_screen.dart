@@ -95,7 +95,7 @@ class FavouriteScreen extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/product-category');
               break;
             case 2:
-              Navigator.pushNamed(context, '/edit-product');
+              Navigator.pushNamed(context, '/add-product');
               break;
             case 3:
               break;
