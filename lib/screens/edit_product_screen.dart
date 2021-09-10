@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -20,6 +22,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
+  File _productImageFile;
 
   @override
   void initState() {
@@ -70,6 +73,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
     // });
   }
 
+  void _pickedImage(File image) {
+    _productImageFile = image;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +116,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ),
                 ),
-                ProductImagePicker(),
+                ProductImagePicker(_pickedImage),
                 Container(
                   alignment: Alignment.centerLeft,
                   child: Text(

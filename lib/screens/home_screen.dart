@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 import '../widgets/ads_banner.dart';
-import '../widgets/products_grid.dart';
+// import '../widgets/product_item.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -30,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final String name = '100 plus 325 ml';
+    // final String image = 'assets/images/100plus.jpg';
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -152,10 +155,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              child: ProductsGrid(),
-            ),
+            // Container(
+            //   margin: const EdgeInsets.symmetric(horizontal: 5),
+            //   child: GridView.builder(
+            //       shrinkWrap: true,
+            //       physics: NeverScrollableScrollPhysics(),
+            //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            //         crossAxisCount: 2,
+            //         crossAxisSpacing: 5,
+            //         mainAxisSpacing: 5,
+            //         childAspectRatio: 1.5 / 2,
+            //       ),
+            //       itemCount: 6,
+            //       itemBuilder: (ctx, index) {
+            //         return ProductItem(name, image);
+            //       }),
+            // ),
             SizedBox(
               height: 10,
             )

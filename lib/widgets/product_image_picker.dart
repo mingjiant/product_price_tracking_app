@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProductImagePicker extends StatefulWidget {
+  ProductImagePicker(this.imagePicker);
+
+  final void Function(File pickedImage) imagePicker;
+
   @override
   _ProductImagePickerState createState() => _ProductImagePickerState();
 }
@@ -13,22 +17,26 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
 
   void _pickImage() async {
     final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.camera);
+    final pickedImage =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 60);
     final pickedImageFile = File(pickedImage.path);
     setState(() {
       Navigator.of(context).pop();
       _pickedImage = pickedImageFile;
     });
+    widget.imagePicker(pickedImageFile);
   }
 
   void _pickImageGallery() async {
     final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+    final pickedImage =
+        await picker.getImage(source: ImageSource.gallery, imageQuality: 60);
     final pickedImageFile = File(pickedImage.path);
     setState(() {
       Navigator.of(context).pop();
       _pickedImage = pickedImageFile;
     });
+    widget.imagePicker(pickedImageFile);
   }
 
   @override

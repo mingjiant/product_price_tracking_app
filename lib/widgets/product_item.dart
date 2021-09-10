@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../screens/product_detail_screen.dart';
+
 class ProductItem extends StatelessWidget {
-  final String name = '100 plus 325 ml';
-  final String image = 'assets/images/100plus.jpg';
-  final double price = 1.33;
+  final String name;
+  final image;
+  final prodData;
+
+  ProductItem(this.name, this.image, this.prodData);
 
   @override
   Widget build(BuildContext context) {
     return GridTile(
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/product-detail');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailScreen(
+                prodData: prodData,
+              ),
+            ),
+          );
         },
         child: Container(
           margin: const EdgeInsets.all(15),
@@ -31,15 +42,19 @@ class ProductItem extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 10.0),
+                margin: const EdgeInsets.only(
+                  top: 10.0,
+                  bottom: 3.0,
+                ),
                 height: 130.0,
                 width: 130.0,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15.0),
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage(image),
-                    )),
+                  borderRadius: BorderRadius.circular(15.0),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: Image.network(image).image,
+                  ),
+                ),
               ),
               Divider(
                 color: Theme.of(context).primaryColor,
@@ -53,13 +68,6 @@ class ProductItem extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      'RM ' + (price).toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],

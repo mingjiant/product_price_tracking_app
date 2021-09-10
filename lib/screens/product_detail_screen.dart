@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   static const routeName = '/product-detail';
+  final prodData;
+  ProductDetailScreen({Key key, @required this.prodData}) : super(key: key);
 
+  @override
+  _ProductDetailScreenState createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     const String image = './assets/images/100plus.jpg';
@@ -17,7 +24,7 @@ class ProductDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Product Detail Screen'),
+        title: Text(widget.prodData['name']),
         actions: [
           IconButton(icon: Icon(Icons.favorite_outline), onPressed: () {})
         ],
@@ -47,9 +54,11 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Image.asset(
-                './assets/images/100plus.jpg',
-                fit: BoxFit.contain,
+              child: Container(
+                child: Image.network(
+                  widget.prodData['imageUrl'],
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             Container(
@@ -64,7 +73,7 @@ class ProductDetailScreen extends StatelessWidget {
                   SizedBox(
                     width: 250,
                     child: Text(
-                      '100 plus 325 ml',
+                      widget.prodData['name'],
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

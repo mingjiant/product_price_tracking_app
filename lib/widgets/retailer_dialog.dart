@@ -3,16 +3,12 @@ import 'package:flutter/material.dart';
 import '../retailer_list.dart';
 
 class RetailerDialog extends StatefulWidget {
-  RetailerDialog({Key key, this.retailer, this.price}) : super(key: key);
-
-  final String retailer;
-  final String price;
-
   @override
   _RetailerDialogState createState() => _RetailerDialogState();
 }
 
 class _RetailerDialogState extends State<RetailerDialog> {
+  GlobalKey<FormState> _formKey;
   var _selectedRetailer;
   TextEditingController _priceController;
   var _retailers = List<DropdownMenuItem>();
@@ -20,6 +16,7 @@ class _RetailerDialogState extends State<RetailerDialog> {
   @override
   void initState() {
     _priceController = TextEditingController();
+    _formKey = GlobalKey<FormState>();
     super.initState();
     _loadRetailers();
   }
@@ -58,149 +55,179 @@ class _RetailerDialogState extends State<RetailerDialog> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(
-                  bottom: 10.0,
-                ),
-                width: double.infinity,
-                height: 50,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(
+                    bottom: 10.0,
+                  ),
+                  width: double.infinity,
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'Add Retailer',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                child: Text(
-                  'Add Retailer',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 5.0,
+                    horizontal: 10.0,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Retailer',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 10.0,
+                  ),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Theme.of(context).primaryColor),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).shadowColor,
+                        spreadRadius: 2,
+                        blurRadius: 2,
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 10.0,
-                ),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Retailer',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 10.0,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.rectangle,
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).shadowColor,
-                      spreadRadius: 2,
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: DropdownButtonFormField(
-                    isExpanded: true,
-                    value: _selectedRetailer,
-                    items: _retailers,
-                    hint: Text('Select a retailer'),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedRetailer = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: const EdgeInsets.symmetric(
-                  vertical: 5.0,
-                  horizontal: 10.0,
-                ),
-                child: Text(
-                  'Product price',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 10.0,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.rectangle,
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).shadowColor,
-                      spreadRadius: 2,
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: TextFormField(
-                    controller: _priceController,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter a price (RM)',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 5.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: DropdownButtonFormField(
+                      isExpanded: true,
+                      value: _selectedRetailer,
+                      items: _retailers,
+                      hint: Text('Select a retailer'),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRetailer = value;
+                        });
                       },
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        List data = [_selectedRetailer, _priceController.text];
-                        Navigator.pop(context, data);
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        errorStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        errorMaxLines: 1,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a retailer';
+                        }
+                        return null;
                       },
-                      child: Text('Confirm'),
-                    )
-                  ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                Container(
+                  alignment: Alignment.centerLeft,
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 5.0,
+                    horizontal: 10.0,
+                  ),
+                  child: Text(
+                    'Product price',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 10.0,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Theme.of(context).primaryColor),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).shadowColor,
+                        spreadRadius: 2,
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: TextFormField(
+                      controller: _priceController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter a price (RM)',
+                        errorStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        errorMaxLines: 1,
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter price';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
+                            List data = [
+                              _selectedRetailer,
+                              _priceController.text
+                            ];
+                            Navigator.pop(context, data);
+                          }
+                        },
+                        child: Text('Confirm'),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

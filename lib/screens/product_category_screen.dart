@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:product_price_tracking_app/screens/product_listing_screen.dart';
 
 import '../category_list.dart';
 
@@ -65,7 +66,16 @@ class ProductCategoryScreen extends StatelessWidget {
                           color: Theme.of(context).primaryColor,
                         ),
                         onTap: () {
-                          Navigator.pushNamed(context, '/product-listing');
+                          // Navigator.pushNamed(context, '/product-listing');
+                          print(categoryTitle[index]);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductListingScreen(
+                                category: categoryTitle[index],
+                              ),
+                            ),
+                          );
                         },
                       );
                     }),
