@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 import '../widgets/product_item.dart';
 
 class ProductListingScreen extends StatefulWidget {
@@ -60,7 +62,10 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                 if (snapshot.connectionState == ConnectionState.none &&
                     snapshot.hasData == null) {
                   return Center(
-                    child: Text('Connection error'),
+                    child: SpinKitThreeBounce(
+                      color: Colors.blue,
+                      size: 30.0,
+                    ),
                   );
                 }
                 return Container(

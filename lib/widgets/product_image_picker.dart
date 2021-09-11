@@ -45,6 +45,8 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
       onTap: () {
         AlertDialog uploadImage = AlertDialog(
           title: Text('Upload an image'),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           actions: [
             TextButton(
               onPressed: _pickImage,

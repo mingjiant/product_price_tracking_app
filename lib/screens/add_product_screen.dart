@@ -200,6 +200,26 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _addProduct();
                 // _retailPrice.clear();
                 Navigator.pop(context);
+              } else {
+                if (_productImageFile == null)
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        clipBehavior: Clip.antiAlias,
+                        title: Text('Please upload an image!'),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Dismiss'))
+                        ],
+                      );
+                    },
+                  );
               }
             },
           ),
