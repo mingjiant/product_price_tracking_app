@@ -18,6 +18,7 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   GlobalKey<FormState> _formKey;
   bool checkboxValue = false;
+  bool isLoading = false;
   var _selectedValue;
   var _categories = List<DropdownMenuItem>();
   var _selectedRetailer;
@@ -123,59 +124,70 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _addProduct() async {
     FocusScope.of(context).unfocus();
-    var docRef =
-        Firestore.instance.collection('products').document().documentID;
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    final imgRef = FirebaseStorage.instance
-        .ref()
-        .child('product_images')
-        .child(docRef + '.jpg');
+      var docRef =
+          Firestore.instance.collection('products').document().documentID;
+      final imgRef = FirebaseStorage.instance
+          .ref()
+          .child('product_images')
+          .child(docRef + '.jpg');
 
-    await imgRef.putFile(_productImageFile).onComplete;
+      await imgRef.putFile(_productImageFile).onComplete;
 
-    final imageUrl = await imgRef.getDownloadURL();
+      final imageUrl = await imgRef.getDownloadURL();
 
-    List retailerPriceList = [];
-    retailerPriceList.add({
-      'retailer': _selectedRetailer,
-      'price': _priceController.text.trim(),
-    });
+      // List retailerPriceList = [];
+      // retailerPriceList.add({
+      //   'retailer': _selectedRetailer,
+      //   'price': _priceController.text.trim(),
+      // });
 
-    await Firestore.instance.collection('products').document(docRef).setData({
-      'name': _nameController.text.trim(),
-      'barcode': _barcodeController.text.trim(),
-      'category': _selectedValue,
-      'imageUrl': imageUrl,
-      'retailPrices': FieldValue.arrayUnion(retailerPriceList),
-    });
+      // await Firestore.instance.collection('products').document(docRef).setData({
+      //   'name': _nameController.text.trim(),
+      //   'barcode': _barcodeController.text.trim(),
+      //   'category': _selectedValue,
+      //   'imageUrl': imageUrl,
+      //   'retailPrices': FieldValue.arrayUnion(retailerPriceList),
+      // });
 
-    // await Firestore.instance.collection('products').document(docRef).setData({
-    //   'name': _nameController.text.trim(),
-    //   'barcode': _barcodeController.text.trim(),
-    //   'category': _selectedValue,
-    //   'imageUrl': imageUrl,
-    // }).then((value) {
-    //   Firestore.instance
-    //       .collection('products')
-    //       .document(docRef)
-    //       .collection('retailPrice')
-    //       .document()
-    //       .setData({
-    //     'retailer': _selectedRetailer,
-    //     'price': _priceController.text.trim(),
-    //   });
-    // });
+      await Firestore.instance.collection('products').document(docRef).setData({
+        'productID': docRef,
+        'name': _nameController.text.trim(),
+        'barcode': _barcodeController.text.trim(),
+        'category': _selectedValue,
+        'imageUrl': imageUrl,
+      }).then((value) {
+        Firestore.instance
+            .collection('products')
+            .document(docRef)
+            .collection('retailPrice')
+            .document()
+            .setData({
+          'retailer': _selectedRetailer,
+          'price': _priceController.text.trim(),
+        });
+      });
 
-    // for (int i = 0; i < _retailPrice.length; i++)
-    //   Firestore.instance
-    //       .collection('products')
-    //       .document(docRef)
-    //       .collection('retailPrice')
-    //       .document()
-    //       .setData({
-    //     'retailer': _retailPrice[i][0],
-    //     'price': _retailPrice[i][1],
-    //   });
+      for (int i = 0; i < _retailPrice.length; i++)
+        Firestore.instance
+            .collection('products')
+            .document(docRef)
+            .collection('retailPrice')
+            .document()
+            .setData({
+          'retailer': _retailPrice[i][0],
+          'price': _retailPrice[i][1],
+        });
+    } catch (error) {
+      print(error);
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override

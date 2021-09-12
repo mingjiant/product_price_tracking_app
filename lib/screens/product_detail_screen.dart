@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../widgets/retailer_dialog.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   static const routeName = '/product-detail';
@@ -10,16 +14,46 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  List _retailPrice = [];
+  Future selectedPrice;
+
+  _getRetailPrice() async {
+    var _collectionReference = await Firestore.instance
+        .collection('products')
+        .document(widget.prodData['productID'])
+        .collection('retailPrice')
+        .getDocuments();
+
+    if (this.mounted) {
+      setState(() {
+        _retailPrice = _collectionReference.documents;
+      });
+    }
+    return _collectionReference.documents;
+  }
+
+  @override
+  void dispose() {
+    _retailPrice = [];
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    selectedPrice = _getRetailPrice();
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     const String image = './assets/images/100plus.jpg';
 
-    final retailerList = [
-      RetailerCard(image, 'Tesco', 1.33),
-      RetailerCard(image, 'Jaya Grocer', 1.35),
-      RetailerCard(image, 'Giant', 1.34),
-      RetailerCard(image, 'Village Grocer', 1.40),
-    ];
+    // final retailerList = [
+    //   RetailerCard(image, 'Tesco', 1.33),
+    //   RetailerCard(image, 'Jaya Grocer', 1.35),
+    //   RetailerCard(image, 'Giant', 1.34),
+    //   RetailerCard(image, 'Village Grocer', 1.40),
+    // ];
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +116,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return RetailerDialog();
+                        },
+                      );
+                    },
                     child: Text(
                       'Update',
                       style: TextStyle(
@@ -100,27 +141,50 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ],
               ),
             ),
-
-            // Expanded(
-            //   child: Container(
-            //     child: ListView.builder(
-            //         itemCount: retailerList.length,
-            //         itemBuilder: (context, index) {
-            //           return retailerList[index];
-            //         }),
+            FutureBuilder(
+              future: _getRetailPrice(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.none &&
+                    snapshot.hasData == null) {
+                  return Center(
+                    child: SpinKitThreeBounce(
+                      color: Colors.blue,
+                      size: 30.0,
+                    ),
+                  );
+                }
+                return Container(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _retailPrice.length,
+                    itemBuilder: (ctx, index) {
+                      return RetailerCard(
+                        image,
+                        _retailPrice[index].data['retailer'],
+                        _retailPrice[index].data['price'],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            // for (var item in retailerList)
+            //   Column(
+            //     children: [
+            //       item,
+            //     ],
             //   ),
-            // ),
-
-            for (var item in retailerList)
-              Column(
-                children: [
-                  item,
-                ],
-              ),
             Container(
               margin: const EdgeInsets.only(bottom: 10.0),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return RetailerDialog();
+                    },
+                  );
+                },
                 child: Text(
                   'Add retailer',
                   style: TextStyle(
@@ -140,7 +204,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 class RetailerCard extends StatelessWidget {
   final String image;
   final String retailer;
-  final double price;
+  final String price;
 
   RetailerCard(this.image, this.retailer, this.price);
 
@@ -181,7 +245,7 @@ class RetailerCard extends StatelessWidget {
               width: 80,
               margin: const EdgeInsets.symmetric(horizontal: 2.0),
               child: Text(
-                'RM ' + price.toStringAsFixed(2),
+                'RM ' + price,
                 maxLines: 2,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
