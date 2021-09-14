@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../retailer_list.dart';
 
 class RetailerDialog extends StatefulWidget {
+  RetailerDialog(this.submitFn);
+
+  final void Function(String retailer, double price) submitFn;
+
   @override
   _RetailerDialogState createState() => _RetailerDialogState();
 }
@@ -33,6 +37,15 @@ class _RetailerDialogState extends State<RetailerDialog> {
         );
       });
     });
+  }
+
+  void _submit() {
+    FocusScope.of(context).unfocus();
+    widget.submitFn(
+      _selectedRetailer,
+      double.parse(_priceController.text),
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -212,15 +225,7 @@ class _RetailerDialogState extends State<RetailerDialog> {
                         child: Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          if (_formKey.currentState.validate()) {
-                            List data = [
-                              _selectedRetailer,
-                              _priceController.text
-                            ];
-                            Navigator.pop(context, data);
-                          }
-                        },
+                        onPressed: _submit,
                         child: Text('Confirm'),
                       )
                     ],

@@ -161,27 +161,24 @@ class _AddProductScreenState extends State<AddProductScreen> {
         'category': _selectedValue,
         'imageUrl': imageUrl,
       }).then((value) {
-        Firestore.instance
+        var docId = Firestore.instance
             .collection('products')
             .document(docRef)
             .collection('retailPrice')
             .document()
+            .documentID;
+
+        Firestore.instance
+            .collection('products')
+            .document(docRef)
+            .collection('retailPrice')
+            .document(docId)
             .setData({
+          'id': docId,
           'retailer': _selectedRetailer,
-          'price': _priceController.text.trim(),
+          'price': double.parse(_priceController.text),
         });
       });
-
-      for (int i = 0; i < _retailPrice.length; i++)
-        Firestore.instance
-            .collection('products')
-            .document(docRef)
-            .collection('retailPrice')
-            .document()
-            .setData({
-          'retailer': _retailPrice[i][0],
-          'price': _retailPrice[i][1],
-        });
     } catch (error) {
       print(error);
       setState(() {
