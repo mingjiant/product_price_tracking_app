@@ -216,27 +216,46 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           ),
                         ],
                       )
-                    : Container(
-                        width: 350,
-                        height: 190,
-                        margin: EdgeInsets.symmetric(vertical: 10.0),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          shape: BoxShape.rectangle,
-                          border:
-                              Border.all(color: Theme.of(context).primaryColor),
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).shadowColor,
-                              spreadRadius: 2,
-                              blurRadius: 2,
+                    : Column(
+                        children: [
+                          Container(
+                            width: 350,
+                            height: 190,
+                            margin: EdgeInsets.symmetric(vertical: 10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              shape: BoxShape.rectangle,
+                              border: Border.all(
+                                  color: Theme.of(context).primaryColor),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).shadowColor,
+                                  spreadRadius: 2,
+                                  blurRadius: 2,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: Image(
-                          image: FileImage(_productImageFile),
-                        ),
+                            child: Image(
+                              image: FileImage(_productImageFile),
+                            ),
+                          ),
+                          Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                TextButton(
+                                  onPressed: _pickImage,
+                                  child: Text('Take Photo'),
+                                ),
+                                TextButton(
+                                  onPressed: _pickImageGallery,
+                                  child: Text('Choose from gallery'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                 Container(
                   alignment: Alignment.centerLeft,
