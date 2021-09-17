@@ -59,6 +59,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
               future: _getProducts(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.none &&
+                    snapshot.connectionState == ConnectionState.waiting &&
                     snapshot.hasData == null) {
                   return Center(
                     child: SpinKitThreeBounce(

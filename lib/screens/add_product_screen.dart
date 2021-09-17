@@ -23,7 +23,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   var _categories = List<DropdownMenuItem>();
   var _selectedRetailer;
   var _retailers = List<DropdownMenuItem>();
-  List<String> selectedCategories = [];
+  // List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
   TextEditingController _priceController;
@@ -81,47 +81,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _productImageFile = image;
   }
 
-  // Widget _loadRetailerPrice() {
-  //   return Column(
-  //     children: [
-  //       for (int i = 0; i < _retailPrice.length; i++)
-  //         Container(
-  //           margin: const EdgeInsets.symmetric(vertical: 5.0),
-  //           child: Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               Container(
-  //                   width: 150,
-  //                   margin: const EdgeInsets.only(right: 10.0),
-  //                   child: Text(
-  //                     _retailPrice[i][0],
-  //                     maxLines: 1,
-  //                   )),
-  //               Container(
-  //                 width: 100,
-  //                 child: Text(
-  //                   'RM ' + _retailPrice[i][1],
-  //                   maxLines: 1,
-  //                 ),
-  //               ),
-  //               Container(
-  //                 child: IconButton(
-  //                   icon: Icon(Icons.delete),
-  //                   color: Colors.red,
-  //                   onPressed: () {
-  //                     _retailPrice.removeAt(i);
-  //                     setState(() {});
-  //                     print(_retailPrice);
-  //                   },
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //         )
-  //     ],
-  //   );
-  // }
-
   void _addProduct() async {
     FocusScope.of(context).unfocus();
     try {
@@ -134,7 +93,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final imgRef = FirebaseStorage.instance
           .ref()
           .child('product_images')
-          .child(docRef + '.jpg');
+          .child(docRef + '/' + DateTime.now().toIso8601String() + '.jpg');
 
       await imgRef.putFile(_productImageFile).onComplete;
 
@@ -198,7 +157,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           },
         ),
         centerTitle: true,
-        title: Text('Add Product Screen'),
+        title: Text('Add Product'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
@@ -522,42 +481,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                   ),
                 ),
-
-                // _retailPrice.length >= 1
-                //     ? _loadRetailerPrice()
-                //     : Container(
-                //         margin: const EdgeInsets.symmetric(vertical: 5.0),
-                //         child: Text(
-                //           'No retailer price yet! Click "Add retailer" to add retailer and product price.',
-                //           textAlign: TextAlign.center,
-                //           style: TextStyle(
-                //             fontSize: 14,
-                //           ),
-                //         ),
-                //       ),
-                // TextButton(
-                //   onPressed: () {
-                //     showDialog(
-                //       context: context,
-                //       builder: (BuildContext context) {
-                //         return RetailerDialog();
-                //       },
-                //     ).then((value) {
-                //       if (value != null) {
-                //         setState(() {});
-                //         _retailPrice.add(value);
-                //         print(value);
-                //       }
-                //     });
-                //   },
-                //   child: Text(
-                //     'Add retailer',
-                //     style: TextStyle(
-                //       fontSize: 16,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),

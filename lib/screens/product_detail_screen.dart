@@ -133,6 +133,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               future: _getRetailPrice(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.none &&
+                    snapshot.connectionState == ConnectionState.waiting &&
                     snapshot.hasData == null) {
                   return Center(
                     child: SpinKitThreeBounce(
