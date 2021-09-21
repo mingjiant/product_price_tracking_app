@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import '../widgets/product_image_picker.dart';
 import '../category_list.dart';
@@ -18,21 +20,21 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   GlobalKey<FormState> _formKey;
   bool checkboxValue = false;
+  bool isLoading = false;
   var _selectedValue;
   var _categories = List<DropdownMenuItem>();
   var _selectedRetailer;
   var _retailers = List<DropdownMenuItem>();
-  List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
   TextEditingController _priceController;
-  var _retailPrice = [];
   File _productImageFile;
+  String _scanBarcode = '';
 
   @override
   void initState() {
     _nameController = TextEditingController();
-    _barcodeController = TextEditingController();
+    _barcodeController = TextEditingController(text: _scanBarcode);
     _priceController = TextEditingController();
     _formKey = GlobalKey<FormState>();
     super.initState();
@@ -80,102 +82,86 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _productImageFile = image;
   }
 
-  // Widget _loadRetailerPrice() {
-  //   return Column(
-  //     children: [
-  //       for (int i = 0; i < _retailPrice.length; i++)
-  //         Container(
-  //           margin: const EdgeInsets.symmetric(vertical: 5.0),
-  //           child: Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               Container(
-  //                   width: 150,
-  //                   margin: const EdgeInsets.only(right: 10.0),
-  //                   child: Text(
-  //                     _retailPrice[i][0],
-  //                     maxLines: 1,
-  //                   )),
-  //               Container(
-  //                 width: 100,
-  //                 child: Text(
-  //                   'RM ' + _retailPrice[i][1],
-  //                   maxLines: 1,
-  //                 ),
-  //               ),
-  //               Container(
-  //                 child: IconButton(
-  //                   icon: Icon(Icons.delete),
-  //                   color: Colors.red,
-  //                   onPressed: () {
-  //                     _retailPrice.removeAt(i);
-  //                     setState(() {});
-  //                     print(_retailPrice);
-  //                   },
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //         )
-  //     ],
-  //   );
-  // }
+  Future<void> _barcodeScanner() async {
+    String barcode;
+    try {
+      barcode = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcode);
+    } on PlatformException {
+      barcode = 'Failed to get platform version';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcode;
+    });
+  }
 
   void _addProduct() async {
     FocusScope.of(context).unfocus();
-    var docRef =
-        Firestore.instance.collection('products').document().documentID;
+    try {
+      setState(() {
+        isLoading = true;
+      });
 
-    final imgRef = FirebaseStorage.instance
-        .ref()
-        .child('product_images')
-        .child(docRef + '.jpg');
+      var docRef =
+          Firestore.instance.collection('products').document().documentID;
+      final imgRef = FirebaseStorage.instance
+          .ref()
+          .child('product_images')
+          .child(docRef + '/' + DateTime.now().toIso8601String() + '.jpg');
 
-    await imgRef.putFile(_productImageFile).onComplete;
+      await imgRef.putFile(_productImageFile).onComplete;
 
-    final imageUrl = await imgRef.getDownloadURL();
+      final imageUrl = await imgRef.getDownloadURL();
 
-    List retailerPriceList = [];
-    retailerPriceList.add({
-      'retailer': _selectedRetailer,
-      'price': _priceController.text.trim(),
-    });
+      // List retailerPriceList = [];
+      // retailerPriceList.add({
+      //   'retailer': _selectedRetailer,
+      //   'price': _priceController.text.trim(),
+      // });
 
-    await Firestore.instance.collection('products').document(docRef).setData({
-      'name': _nameController.text.trim(),
-      'barcode': _barcodeController.text.trim(),
-      'category': _selectedValue,
-      'imageUrl': imageUrl,
-      'retailPrices': FieldValue.arrayUnion(retailerPriceList),
-    });
+      // await Firestore.instance.collection('products').document(docRef).setData({
+      //   'name': _nameController.text.trim(),
+      //   'barcode': _barcodeController.text.trim(),
+      //   'category': _selectedValue,
+      //   'imageUrl': imageUrl,
+      //   'retailPrices': FieldValue.arrayUnion(retailerPriceList),
+      // });
 
-    // await Firestore.instance.collection('products').document(docRef).setData({
-    //   'name': _nameController.text.trim(),
-    //   'barcode': _barcodeController.text.trim(),
-    //   'category': _selectedValue,
-    //   'imageUrl': imageUrl,
-    // }).then((value) {
-    //   Firestore.instance
-    //       .collection('products')
-    //       .document(docRef)
-    //       .collection('retailPrice')
-    //       .document()
-    //       .setData({
-    //     'retailer': _selectedRetailer,
-    //     'price': _priceController.text.trim(),
-    //   });
-    // });
+      await Firestore.instance.collection('products').document(docRef).setData({
+        'productID': docRef,
+        'name': _nameController.text.trim(),
+        'barcode': _barcodeController.text.trim(),
+        'category': _selectedValue,
+        'imageUrl': imageUrl,
+      }).then((value) {
+        var docId = Firestore.instance
+            .collection('products')
+            .document(docRef)
+            .collection('retailPrice')
+            .document()
+            .documentID;
 
-    // for (int i = 0; i < _retailPrice.length; i++)
-    //   Firestore.instance
-    //       .collection('products')
-    //       .document(docRef)
-    //       .collection('retailPrice')
-    //       .document()
-    //       .setData({
-    //     'retailer': _retailPrice[i][0],
-    //     'price': _retailPrice[i][1],
-    //   });
+        Firestore.instance
+            .collection('products')
+            .document(docRef)
+            .collection('retailPrice')
+            .document(docId)
+            .setData({
+          'id': docId,
+          'retailer': _selectedRetailer,
+          'price': double.parse(_priceController.text),
+        });
+      });
+    } catch (error) {
+      print(error);
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -189,16 +175,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
           },
         ),
         centerTitle: true,
-        title: Text('Add Product Screen'),
+        title: Text('Add Product'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              if (_formKey.currentState.validate() && _productImageFile != null
-                  // && _retailPrice.isNotEmpty
-                  ) {
+              if (_formKey.currentState.validate() &&
+                  _productImageFile != null) {
                 _addProduct();
-                // _retailPrice.clear();
                 Navigator.pop(context);
               } else {
                 if (_productImageFile == null)
@@ -347,7 +331,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             Icons.qr_code_scanner,
                             color: Theme.of(context).primaryColor,
                           ),
-                          onPressed: () {},
+                          onPressed: () => _barcodeScanner(),
                         ),
                       ],
                     ),
@@ -513,42 +497,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     ),
                   ),
                 ),
-
-                // _retailPrice.length >= 1
-                //     ? _loadRetailerPrice()
-                //     : Container(
-                //         margin: const EdgeInsets.symmetric(vertical: 5.0),
-                //         child: Text(
-                //           'No retailer price yet! Click "Add retailer" to add retailer and product price.',
-                //           textAlign: TextAlign.center,
-                //           style: TextStyle(
-                //             fontSize: 14,
-                //           ),
-                //         ),
-                //       ),
-                // TextButton(
-                //   onPressed: () {
-                //     showDialog(
-                //       context: context,
-                //       builder: (BuildContext context) {
-                //         return RetailerDialog();
-                //       },
-                //     ).then((value) {
-                //       if (value != null) {
-                //         setState(() {});
-                //         _retailPrice.add(value);
-                //         print(value);
-                //       }
-                //     });
-                //   },
-                //   child: Text(
-                //     'Add retailer',
-                //     style: TextStyle(
-                //       fontSize: 16,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 import '../widgets/product_item.dart';
 
 class ProductListingScreen extends StatefulWidget {
@@ -60,6 +59,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
               future: _getProducts(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.none &&
+                    snapshot.connectionState == ConnectionState.waiting &&
                     snapshot.hasData == null) {
                   return Center(
                     child: SpinKitThreeBounce(

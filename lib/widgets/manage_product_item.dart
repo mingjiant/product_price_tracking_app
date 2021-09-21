@@ -1,6 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/edit_product_screen.dart';
+
 class ManageProductItem extends StatelessWidget {
+  final image;
+  final String name;
+  final prodData;
+
+  ManageProductItem(this.image, this.name, this.prodData);
+
+  void _deleteProduct() async {
+    await Firestore.instance
+        .collection('products')
+        .document(prodData['productID'])
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,13 +36,13 @@ class ManageProductItem extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(
-          'Product name',
+          name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: CircleAvatar(
-          backgroundImage: AssetImage('./assets/images/100plus.jpg'),
+          backgroundImage: NetworkImage(image),
         ),
         trailing: Container(
           width: 100,
@@ -35,13 +51,45 @@ class ManageProductItem extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.edit),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/edit-product');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditProductScreen(prodData: prodData),
+                    ),
+                  );
                 },
                 color: Theme.of(context).primaryColor,
               ),
               IconButton(
                 icon: Icon(Icons.delete),
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          clipBehavior: Clip.antiAlias,
+                          title: Text('Are you sure?'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _deleteProduct();
+                                Navigator.pop(context);
+                              },
+                              child: Text('Confirm'),
+                            ),
+                          ],
+                        );
+                      });
+                },
                 color: Theme.of(context).errorColor,
               ),
             ],

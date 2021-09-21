@@ -1,14 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '../widgets/product_image_picker.dart';
-// import '../widgets/retailer_dialog.dart';
 import '../category_list.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const routeName = '/edit-product';
+  final prodData;
+  EditProductScreen({Key key, @required this.prodData}) : super(key: key);
 
   @override
   _EditProductScreenState createState() => _EditProductScreenState();
@@ -19,15 +22,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
   bool checkboxValue = false;
   var _selectedValue;
   var _categories = List<DropdownMenuItem>();
-  List<String> selectedCategories = [];
+  // List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
   File _productImageFile;
+  List _retailPrice = [];
+  Future selectedPrice;
 
   @override
   void initState() {
-    _nameController = TextEditingController();
-    _barcodeController = TextEditingController();
+    _nameController = TextEditingController(text: widget.prodData['name']);
+    _barcodeController =
+        TextEditingController(text: widget.prodData['barcode']);
+    _selectedValue = widget.prodData['category'];
     _formKey = GlobalKey<FormState>();
     super.initState();
     _loadCategories();
@@ -54,27 +61,78 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
   }
 
-  void _addProduct() {
-    FocusScope.of(context).unfocus();
-    // var docRef =
-    //     Firestore.instance.collection('products').document().documentID;
-    // Firestore.instance.collection('products').document(docRef).setData({
-    //   'name': _nameController.text.trim(),
-    //   'barcode': _barcodeController.text.trim(),
-    //   'category': _selectedValue,
-    // });
-    // Firestore.instance
-    //     .collection('products')
-    //     .document(docRef)
-    //     .collection('retailPrice')
-    //     .add({
-    //   'retailer': 'Jaya Grocer',
-    //   'price': '1.44',
-    // });
+  _getRetailPrice() async {
+    var _collectionReference = await Firestore.instance
+        .collection('products')
+        .document(widget.prodData['productID'])
+        .collection('retailPrice')
+        .orderBy('price')
+        .getDocuments();
+
+    if (this.mounted) {
+      setState(() {
+        _retailPrice = _collectionReference.documents;
+      });
+    }
+    return _collectionReference.documents;
   }
 
-  void _pickedImage(File image) {
-    _productImageFile = image;
+  void _editProduct() async {
+    FocusScope.of(context).unfocus();
+    var imageUrl;
+    final imgRef = FirebaseStorage.instance.ref().child('product_images').child(
+        widget.prodData['productID'] +
+            '/' +
+            DateTime.now().toIso8601String() +
+            '.jpg');
+
+    if (_productImageFile != null) {
+      await imgRef.putFile(_productImageFile).onComplete;
+      imageUrl = await imgRef.getDownloadURL();
+    }
+
+    try {
+      await Firestore.instance
+          .collection('products')
+          .document(widget.prodData['productID'])
+          .updateData(
+        {
+          'name': _nameController.text.trim(),
+          'barcode': _barcodeController.text.trim(),
+          'category': _selectedValue,
+          'imageUrl':
+              _productImageFile == null ? widget.prodData['imageUrl'] : imageUrl
+        },
+      );
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  void _pickImage() async {
+    final picker = ImagePicker();
+    final pickedImage =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 60);
+    final pickedImageFile = File(pickedImage.path);
+    setState(() {
+      _productImageFile = pickedImageFile;
+    });
+  }
+
+  void _pickImageGallery() async {
+    final picker = ImagePicker();
+    final pickedImage =
+        await picker.getImage(source: ImageSource.gallery, imageQuality: 60);
+    final pickedImageFile = File(pickedImage.path);
+    setState(() {
+      _productImageFile = pickedImageFile;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    selectedPrice = _getRetailPrice();
+    super.didChangeDependencies();
   }
 
   @override
@@ -88,12 +146,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
           },
         ),
         centerTitle: true,
-        title: Text('Edit Product Screen'),
+        title: Text('Edit Product'),
         actions: [
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              _addProduct();
+              _editProduct();
               Navigator.pop(context);
             },
           ),
@@ -116,7 +174,89 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ),
                 ),
-                ProductImagePicker(_pickedImage),
+                _productImageFile == null
+                    ? Column(
+                        children: [
+                          Container(
+                            width: 350,
+                            height: 190,
+                            margin: EdgeInsets.symmetric(vertical: 10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              shape: BoxShape.rectangle,
+                              border: Border.all(
+                                  color: Theme.of(context).primaryColor),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).shadowColor,
+                                  spreadRadius: 2,
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Image.network(
+                              widget.prodData['imageUrl'],
+                            ),
+                          ),
+                          Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                TextButton(
+                                  onPressed: _pickImage,
+                                  child: Text('Take Photo'),
+                                ),
+                                TextButton(
+                                  onPressed: _pickImageGallery,
+                                  child: Text('Choose from gallery'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Container(
+                            width: 350,
+                            height: 190,
+                            margin: EdgeInsets.symmetric(vertical: 10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              shape: BoxShape.rectangle,
+                              border: Border.all(
+                                  color: Theme.of(context).primaryColor),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).shadowColor,
+                                  spreadRadius: 2,
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Image(
+                              image: FileImage(_productImageFile),
+                            ),
+                          ),
+                          Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                TextButton(
+                                  onPressed: _pickImage,
+                                  child: Text('Take Photo'),
+                                ),
+                                TextButton(
+                                  onPressed: _pickImageGallery,
+                                  child: Text('Choose from gallery'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                 Container(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -247,15 +387,77 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: () {},
+                Container(
+                  alignment: Alignment.centerLeft,
                   child: Text(
-                    'Add retailer',
+                    'Retail price',
                     style: TextStyle(
-                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
+                ),
+                FutureBuilder(
+                  future: _getRetailPrice(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.none &&
+                        snapshot.connectionState == ConnectionState.waiting &&
+                        snapshot.hasData == null) {
+                      return Center(
+                        child: SpinKitThreeBounce(
+                          color: Colors.blue,
+                          size: 30.0,
+                        ),
+                      );
+                    }
+                    return Container(
+                      child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: _retailPrice.length,
+                        itemBuilder: (ctx, index) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 150,
+                                margin: const EdgeInsets.only(right: 10.0),
+                                child: Text(
+                                  _retailPrice[index].data['retailer'],
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Container(
+                                width: 100,
+                                child: Text(
+                                  'RM ' +
+                                      _retailPrice[index]
+                                          .data['price']
+                                          .toStringAsFixed(2),
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Container(
+                                child: IconButton(
+                                  icon: Icon(Icons.delete),
+                                  color: Colors.red,
+                                  onPressed: () async {
+                                    await Firestore.instance
+                                        .collection('products')
+                                        .document(widget.prodData['productID'])
+                                        .collection('retailPrice')
+                                        .document(
+                                            _retailPrice[index].data['id'])
+                                        .delete();
+                                  },
+                                ),
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

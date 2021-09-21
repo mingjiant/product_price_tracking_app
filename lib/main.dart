@@ -6,7 +6,6 @@ import './helpers/material_color_generator.dart';
 import './screens/home_screen.dart';
 import './screens/product_category_screen.dart';
 import 'screens/add_product_screen.dart';
-import 'screens/edit_product_screen.dart';
 import './screens/favourite_screen.dart';
 import './screens/account_screen.dart';
 import './screens/manage_product_screen.dart';
@@ -44,7 +43,6 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName: (ctx) => HomeScreen(),
         ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
         AddProductScreen.routeName: (ctx) => AddProductScreen(),
-        EditProductScreen.routeName: (ctx) => EditProductScreen(),
         FavouriteScreen.routeName: (ctx) => FavouriteScreen(),
         AccountScreen.routeName: (ctx) => AccountScreen(),
         ManageProductScreen.routeName: (ctx) => ManageProductScreen(),
