@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import '../widgets/ads_banner.dart';
 // import '../widgets/product_item.dart';
@@ -14,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
+  String _scanBarcode = '';
 
   List cardList = [
     AdsBanner('./assets/images/banner1.jpg'),
@@ -26,6 +29,23 @@ class _HomeScreenState extends State<HomeScreen> {
       result.add(handler(i, list[i]));
     }
     return result;
+  }
+
+  Future<void> _barcodeScanner() async {
+    String barcode;
+    try {
+      barcode = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcode);
+    } on PlatformException {
+      barcode = 'Failed to get platform version';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcode;
+    });
   }
 
   @override
@@ -44,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: Icon(Icons.qr_code_scanner_rounded),
-            onPressed: () {},
+            onPressed: () => _barcodeScanner(),
           ),
         ],
       ),

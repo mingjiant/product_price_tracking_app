@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import '../widgets/product_image_picker.dart';
 import '../category_list.dart';
@@ -23,17 +25,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
   var _categories = List<DropdownMenuItem>();
   var _selectedRetailer;
   var _retailers = List<DropdownMenuItem>();
-  // List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
   TextEditingController _priceController;
-  var _retailPrice = [];
   File _productImageFile;
+  String _scanBarcode = '';
 
   @override
   void initState() {
     _nameController = TextEditingController();
-    _barcodeController = TextEditingController();
+    _barcodeController = TextEditingController(text: _scanBarcode);
     _priceController = TextEditingController();
     _formKey = GlobalKey<FormState>();
     super.initState();
@@ -79,6 +80,23 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _pickedImage(File image) {
     _productImageFile = image;
+  }
+
+  Future<void> _barcodeScanner() async {
+    String barcode;
+    try {
+      barcode = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcode);
+    } on PlatformException {
+      barcode = 'Failed to get platform version';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcode;
+    });
   }
 
   void _addProduct() async {
@@ -162,11 +180,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              if (_formKey.currentState.validate() && _productImageFile != null
-                  // && _retailPrice.isNotEmpty
-                  ) {
+              if (_formKey.currentState.validate() &&
+                  _productImageFile != null) {
                 _addProduct();
-                // _retailPrice.clear();
                 Navigator.pop(context);
               } else {
                 if (_productImageFile == null)
@@ -315,7 +331,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             Icons.qr_code_scanner,
                             color: Theme.of(context).primaryColor,
                           ),
-                          onPressed: () {},
+                          onPressed: () => _barcodeScanner(),
                         ),
                       ],
                     ),
