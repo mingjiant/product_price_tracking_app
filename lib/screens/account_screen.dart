@@ -49,7 +49,7 @@ class AccountScreen extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    width: 200,
+                    width: 150,
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Username',

@@ -19,13 +19,15 @@ class FavouriteItem extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 150,
+                  width: 120,
                   height: 100,
                   child: Image.asset('./assets/images/100plus.jpg'),
                 ),
                 Container(
+                  width: 190,
                   margin: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +50,7 @@ class FavouriteItem extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        width: 185,
+                        width: 170,
                         child: Text(
                           'Retailer: Jaya Grocer Subang Jaya',
                           style: TextStyle(fontWeight: FontWeight.bold),
