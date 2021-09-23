@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
+import '../screens/product_detail_screen.dart';
 import '../widgets/ads_banner.dart';
 // import '../widgets/product_item.dart';
 
@@ -17,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
   String _scanBarcode = '';
+  List _products = [];
 
   List cardList = [
     AdsBanner('./assets/images/banner1.jpg'),
@@ -50,9 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final String name = '100 plus 325 ml';
-    // final String image = 'assets/images/100plus.jpg';
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -60,11 +60,55 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
           IconButton(
             icon: Icon(Icons.qr_code_scanner_rounded),
-            onPressed: () => _barcodeScanner(),
+            onPressed: () async {
+              var _getProducts = await Firestore.instance
+                  .collection('products')
+                  .getDocuments();
+
+              if (this.mounted) {
+                setState(() {
+                  _products = _getProducts.documents;
+                });
+              }
+              _barcodeScanner().then(
+                (value) {
+                  for (int i = 0; i < _products.length; i++) {
+                    if (_scanBarcode == _products[i].data['barcode']) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProductDetailScreen(prodData: _products[i].data),
+                        ),
+                      );
+                    }
+                    // if (_scanBarcode != _products[i].data['barcode'])
+                    //   showDialog(
+                    //     context: context,
+                    //     builder: (BuildContext context) {
+                    //       return AlertDialog(
+                    //         clipBehavior: Clip.antiAlias,
+                    //         title: Text('Product not found!'),
+                    //         shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(20)),
+                    //         actions: [
+                    //           TextButton(
+                    //               onPressed: () {
+                    //                 Navigator.pop(context);
+                    //               },
+                    //               child: Text('Dismiss'))
+                    //         ],
+                    //       );
+                    //     },
+                    //   );
+                  }
+                },
+              );
+            },
           ),
         ],
       ),

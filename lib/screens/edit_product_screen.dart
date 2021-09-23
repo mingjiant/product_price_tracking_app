@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -22,12 +24,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   bool checkboxValue = false;
   var _selectedValue;
   var _categories = List<DropdownMenuItem>();
-  // List<String> selectedCategories = [];
   TextEditingController _nameController;
   TextEditingController _barcodeController;
   File _productImageFile;
   List _retailPrice = [];
   Future selectedPrice;
+  String _scanBarcode = '';
 
   @override
   void initState() {
@@ -58,6 +60,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
           ),
         );
       });
+    });
+  }
+
+  Future<void> _barcodeScanner() async {
+    String barcode;
+    try {
+      barcode = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+      print(barcode);
+    } on PlatformException {
+      barcode = 'Failed to get platform version';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcode;
     });
   }
 
@@ -324,7 +343,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 285,
+                          width: 250,
                           child: TextFormField(
                             controller: _barcodeController,
                             decoration: InputDecoration(
@@ -339,7 +358,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             Icons.qr_code_scanner,
                             color: Theme.of(context).primaryColor,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            _barcodeScanner().then(
+                              (value) {
+                                _barcodeController =
+                                    TextEditingController(text: _scanBarcode);
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),

@@ -30,11 +30,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
   TextEditingController _priceController;
   File _productImageFile;
   String _scanBarcode = '';
+  List _products = [];
 
   @override
   void initState() {
     _nameController = TextEditingController();
-    _barcodeController = TextEditingController(text: _scanBarcode);
+    _barcodeController = TextEditingController();
     _priceController = TextEditingController();
     _formKey = GlobalKey<FormState>();
     super.initState();
@@ -164,6 +165,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
+  _getProducts() async {
+    var _collectionReference =
+        await Firestore.instance.collection('products').getDocuments();
+
+    if (this.mounted) {
+      setState(() {
+        _products = _collectionReference.documents;
+      });
+    }
+    return _collectionReference.documents;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,7 +198,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 _addProduct();
                 Navigator.pop(context);
               } else {
-                if (_productImageFile == null)
+                if (_productImageFile == null) {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -204,6 +217,33 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       );
                     },
                   );
+                }
+                //   else {
+                //     for (int i = 0; i < _products.length; i++) {
+                //       String barcode = _products[i].data['barcode'];
+                //       if (_barcodeController.text == barcode) {
+                //         showDialog(
+                //           context: context,
+                //           builder: (BuildContext context) {
+                //             return AlertDialog(
+                //               clipBehavior: Clip.antiAlias,
+                //               title: Text(
+                //                   'The barcode has been recorded! Please check the barcode again!'),
+                //               shape: RoundedRectangleBorder(
+                //                   borderRadius: BorderRadius.circular(20)),
+                //               actions: [
+                //                 TextButton(
+                //                     onPressed: () {
+                //                       Navigator.pop(context);
+                //                     },
+                //                     child: Text('Dismiss'))
+                //               ],
+                //             );
+                //           },
+                //         );
+                //       }
+                //     }
+                //   }
               }
             },
           ),
@@ -305,7 +345,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 285,
+                          width: 250,
                           child: TextFormField(
                             controller: _barcodeController,
                             decoration: InputDecoration(
@@ -331,7 +371,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             Icons.qr_code_scanner,
                             color: Theme.of(context).primaryColor,
                           ),
-                          onPressed: () => _barcodeScanner(),
+                          onPressed: () {
+                            _barcodeScanner().then(
+                              (value) {
+                                _barcodeController =
+                                    TextEditingController(text: _scanBarcode);
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),
