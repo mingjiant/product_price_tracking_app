@@ -343,6 +343,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 15.0),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
                           width: 250,
