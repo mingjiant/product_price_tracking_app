@@ -38,7 +38,11 @@ class _SearchScreenState extends State<SearchScreen> {
         _searchResult.add(_products[i]);
       }
     }
-    setState(() {});
+    setState(() {
+      if (searchKey.isEmpty) {
+        _searchResult.clear();
+      }
+    });
   }
 
   @override
@@ -66,6 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
             width: 250,
             height: 200,
             child: TextField(
+              autofocus: true,
               controller: _searchController,
               maxLines: 1,
               autocorrect: false,
@@ -73,61 +78,73 @@ class _SearchScreenState extends State<SearchScreen> {
               style: TextStyle(
                 color: Colors.white,
               ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'What are you searching for?',
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade400,
+                ),
+              ),
               onChanged: searchProduct,
             ),
           ),
           IconButton(
             onPressed: () {
-              _searchController.clear();
+              setState(() {
+                _searchController.clear();
+                _searchResult.clear();
+              });
             },
             icon: Icon(Icons.close),
           ),
         ],
       ),
-      body: _searchResult.isEmpty
-          ? FutureBuilder(
-              future: _getProducts(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.none &&
-                    snapshot.connectionState == ConnectionState.waiting &&
-                    snapshot.hasData == null) {
-                  return Center(
-                    child: SpinKitThreeBounce(
-                      color: Colors.blue,
-                      size: 30.0,
-                    ),
-                  );
-                }
-                return Container(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _products.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return ListTile(
-                        title: Text(_products[index].data['name']),
-                      );
-                    },
-                  ),
-                );
-              },
-            )
-          : ListView.builder(
-              itemCount: _searchResult.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_searchResult[index].data['name']),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailScreen(
-                            prodData: _searchResult[index].data),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+      body:
+          // _searchResult.isEmpty
+          //     ? FutureBuilder(
+          //         future: _getProducts(),
+          //         builder: (context, snapshot) {
+          //           if (snapshot.connectionState == ConnectionState.none &&
+          //               snapshot.connectionState == ConnectionState.waiting &&
+          //               snapshot.hasData == null) {
+          //             return Center(
+          //               child: SpinKitThreeBounce(
+          //                 color: Theme.of(context).primaryColor,
+          //                 size: 30.0,
+          //               ),
+          //             );
+          //           }
+          //           return Container(
+          //             child: ListView.builder(
+          //               shrinkWrap: true,
+          //               itemCount: _products.length,
+          //               itemBuilder: (BuildContext context, index) {
+          //                 return ListTile(
+          //                   title: Text(_products[index].data['name']),
+          //                 );
+          //               },
+          //             ),
+          //           );
+          //         },
+          //       )
+          // :
+          ListView.builder(
+        itemCount: _searchResult.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_searchResult[index].data['name']),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ProductDetailScreen(prodData: _searchResult[index].data),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

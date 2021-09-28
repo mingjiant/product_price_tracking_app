@@ -225,7 +225,9 @@ class _RetailerDialogState extends State<RetailerDialog> {
                         child: Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: _submit,
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) _submit();
+                        },
                         child: Text('Confirm'),
                       )
                     ],

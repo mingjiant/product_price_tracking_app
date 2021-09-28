@@ -62,7 +62,7 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
                       snapshot.hasData == null) {
                     return Center(
                       child: SpinKitThreeBounce(
-                        color: Colors.blue,
+                        color: Theme.of(context).primaryColor,
                         size: 30.0,
                       ),
                     );

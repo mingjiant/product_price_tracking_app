@@ -5,7 +5,7 @@ class FavouriteItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/product-detail');
+        // Navigator.pushNamed(context, '/product-detail');
       },
       child: Container(
         height: 160,
