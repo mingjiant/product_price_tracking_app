@@ -15,8 +15,13 @@ class ProductListingScreen extends StatefulWidget {
 class _ProductListingScreenState extends State<ProductListingScreen> {
   List _products = [];
   Future selectedProducts;
+  var _isLoading = false;
 
   _getProducts() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     var _collectionReference = await Firestore.instance
         .collection('products')
         .where('category', isEqualTo: widget.category)
@@ -27,6 +32,11 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
         _products = _collectionReference.documents;
       });
     }
+
+    setState(() {
+      _isLoading = false;
+    });
+
     return _collectionReference.documents;
   }
 
@@ -49,46 +59,53 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
         centerTitle: true,
         title: Text(widget.category),
       ),
-      body: _products.length == 0
-          ? Container(
-              child: Center(
-                child: Text('No products'),
+      body: _isLoading
+          ? Center(
+              child: SpinKitThreeBounce(
+                color: Theme.of(context).primaryColor,
+                size: 30.0,
               ),
             )
-          : FutureBuilder(
-              future: _getProducts(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.none &&
-                    snapshot.connectionState == ConnectionState.waiting &&
-                    snapshot.hasData == null) {
-                  return Center(
-                    child: SpinKitThreeBounce(
-                      color: Colors.blue,
-                      size: 30.0,
-                    ),
-                  );
-                }
-                return Container(
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 5,
-                      childAspectRatio: 1.55 / 2,
-                    ),
-                    itemCount: _products.length,
-                    itemBuilder: (ctx, index) {
-                      return ProductItem(
-                        _products[index].data['name'],
-                        _products[index].data['imageUrl'],
-                        _products[index].data,
-                      );
-                    },
+          : _products.length == 0
+              ? Container(
+                  child: Center(
+                    child: Text('No products'),
                   ),
-                );
-              },
-            ),
+                )
+              : FutureBuilder(
+                  future: _getProducts(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.none &&
+                        snapshot.connectionState == ConnectionState.waiting &&
+                        snapshot.hasData == null) {
+                      return Center(
+                        child: SpinKitThreeBounce(
+                          color: Theme.of(context).primaryColor,
+                          size: 30.0,
+                        ),
+                      );
+                    }
+                    return Container(
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                          childAspectRatio: 1.55 / 2,
+                        ),
+                        itemCount: _products.length,
+                        itemBuilder: (ctx, index) {
+                          return ProductItem(
+                            _products[index].data['name'],
+                            _products[index].data['imageUrl'],
+                            _products[index].data,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

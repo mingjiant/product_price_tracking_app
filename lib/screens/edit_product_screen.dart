@@ -26,10 +26,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   var _categories = List<DropdownMenuItem>();
   TextEditingController _nameController;
   TextEditingController _barcodeController;
+  final _barcodeFocusNode = FocusNode();
   File _productImageFile;
   List _retailPrice = [];
   Future selectedPrice;
   String _scanBarcode = '';
+  var _isLoading = false;
 
   @override
   void initState() {
@@ -46,6 +48,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void dispose() {
     _nameController.dispose();
     _barcodeController.dispose();
+    _barcodeFocusNode.dispose();
     super.dispose();
   }
 
@@ -109,7 +112,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
       await imgRef.putFile(_productImageFile).onComplete;
       imageUrl = await imgRef.getDownloadURL();
     }
-
+    setState(() {
+      _isLoading = true;
+    });
     try {
       await Firestore.instance
           .collection('products')
@@ -126,6 +131,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
     } catch (error) {
       print(error);
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _pickImage() async {
@@ -170,327 +178,416 @@ class _EditProductScreenState extends State<EditProductScreen> {
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
-              _editProduct();
-              Navigator.pop(context);
+              if (_formKey.currentState.validate()) {
+                _editProduct();
+                Navigator.pop(context);
+              }
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Product image',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                _productImageFile == null
-                    ? Column(
-                        children: [
-                          Container(
-                            width: 350,
-                            height: 190,
-                            margin: EdgeInsets.symmetric(vertical: 10.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              shape: BoxShape.rectangle,
-                              border: Border.all(
-                                  color: Theme.of(context).primaryColor),
-                              borderRadius: BorderRadius.circular(10.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context).shadowColor,
-                                  spreadRadius: 2,
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Image.network(
-                              widget.prodData['imageUrl'],
-                            ),
+      body: _isLoading
+          ? Center(
+              child: SpinKitThreeBounce(
+                color: Theme.of(context).primaryColor,
+                size: 30.0,
+              ),
+            )
+          : SingleChildScrollView(
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Product image',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        ),
+                      ),
+                      _productImageFile == null
+                          ? Column(
                               children: [
-                                TextButton(
-                                  onPressed: _pickImage,
-                                  child: Text('Take Photo'),
+                                Container(
+                                  width: 350,
+                                  height: 190,
+                                  margin: EdgeInsets.symmetric(vertical: 10.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    shape: BoxShape.rectangle,
+                                    border: Border.all(
+                                        color: Theme.of(context).primaryColor),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(context).shadowColor,
+                                        spreadRadius: 2,
+                                        blurRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Image.network(
+                                    widget.prodData['imageUrl'],
+                                  ),
                                 ),
-                                TextButton(
-                                  onPressed: _pickImageGallery,
-                                  child: Text('Choose from gallery'),
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      TextButton(
+                                        onPressed: _pickImage,
+                                        child: Text('Take Photo'),
+                                      ),
+                                      TextButton(
+                                        onPressed: _pickImageGallery,
+                                        child: Text('Choose from gallery'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          Container(
-                            width: 350,
-                            height: 190,
-                            margin: EdgeInsets.symmetric(vertical: 10.0),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              shape: BoxShape.rectangle,
-                              border: Border.all(
-                                  color: Theme.of(context).primaryColor),
-                              borderRadius: BorderRadius.circular(10.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context).shadowColor,
-                                  spreadRadius: 2,
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Image(
-                              image: FileImage(_productImageFile),
-                            ),
-                          ),
-                          Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            )
+                          : Column(
                               children: [
-                                TextButton(
-                                  onPressed: _pickImage,
-                                  child: Text('Take Photo'),
+                                Container(
+                                  width: 350,
+                                  height: 190,
+                                  margin: EdgeInsets.symmetric(vertical: 10.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    shape: BoxShape.rectangle,
+                                    border: Border.all(
+                                        color: Theme.of(context).primaryColor),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(context).shadowColor,
+                                        spreadRadius: 2,
+                                        blurRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Image(
+                                    image: FileImage(_productImageFile),
+                                  ),
                                 ),
-                                TextButton(
-                                  onPressed: _pickImageGallery,
-                                  child: Text('Choose from gallery'),
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      TextButton(
+                                        onPressed: _pickImage,
+                                        child: Text('Take Photo'),
+                                      ),
+                                      TextButton(
+                                        onPressed: _pickImageGallery,
+                                        child: Text('Choose from gallery'),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Product name',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                        ],
+                        ),
                       ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Product name',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.rectangle,
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor,
-                        spreadRadius: 2,
-                        blurRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        hintText: 'Enter product name',
-                        border: InputBorder.none,
-                      ),
-                      keyboardType: TextInputType.name,
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Product barcode',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.rectangle,
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor,
-                        spreadRadius: 2,
-                        blurRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 15.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 250,
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.rectangle,
+                          border:
+                              Border.all(color: Theme.of(context).primaryColor),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).shadowColor,
+                              spreadRadius: 2,
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: TextFormField(
-                            controller: _barcodeController,
+                            controller: _nameController,
                             decoration: InputDecoration(
-                              hintText: 'Enter or scan product barcode',
+                              hintText: 'Enter product name',
                               border: InputBorder.none,
+                              errorStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              errorMaxLines: 1,
                             ),
                             keyboardType: TextInputType.name,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a product name';
+                              }
+                              return null;
+                            },
+                            onFieldSubmitted: (_) {
+                              FocusScope.of(context)
+                                  .requestFocus(_barcodeFocusNode);
+                            },
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.qr_code_scanner,
-                            color: Theme.of(context).primaryColor,
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Product barcode',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          onPressed: () {
-                            _barcodeScanner().then(
-                              (value) {
-                                _barcodeController =
-                                    TextEditingController(text: _scanBarcode);
-                              },
-                            );
-                          },
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Product category',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.rectangle,
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor,
-                        spreadRadius: 2,
-                        blurRadius: 2,
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: DropdownButtonFormField(
-                      value: _selectedValue,
-                      items: _categories,
-                      hint: Text('Select a category'),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedValue = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Retail price',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                FutureBuilder(
-                  future: _getRetailPrice(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.none &&
-                        snapshot.connectionState == ConnectionState.waiting &&
-                        snapshot.hasData == null) {
-                      return Center(
-                        child: SpinKitThreeBounce(
-                          color: Colors.blue,
-                          size: 30.0,
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.rectangle,
+                          border:
+                              Border.all(color: Theme.of(context).primaryColor),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).shadowColor,
+                              spreadRadius: 2,
+                              blurRadius: 2,
+                            ),
+                          ],
                         ),
-                      );
-                    }
-                    return Container(
-                      child: ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: _retailPrice.length,
-                        itemBuilder: (ctx, index) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                width: 150,
-                                margin: const EdgeInsets.only(right: 10.0),
-                                child: Text(
-                                  _retailPrice[index].data['retailer'],
-                                  maxLines: 1,
-                                ),
-                              ),
-                              Container(
-                                width: 100,
-                                child: Text(
-                                  'RM ' +
-                                      _retailPrice[index]
-                                          .data['price']
-                                          .toStringAsFixed(2),
-                                  maxLines: 1,
-                                ),
-                              ),
-                              Container(
-                                child: IconButton(
-                                  icon: Icon(Icons.delete),
-                                  color: Colors.red,
-                                  onPressed: () async {
-                                    await Firestore.instance
-                                        .collection('products')
-                                        .document(widget.prodData['productID'])
-                                        .collection('retailPrice')
-                                        .document(
-                                            _retailPrice[index].data['id'])
-                                        .delete();
+                              SizedBox(
+                                width: 250,
+                                child: TextFormField(
+                                  controller: _barcodeController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter or scan product barcode',
+                                    border: InputBorder.none,
+                                    errorStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    errorMaxLines: 1,
+                                  ),
+                                  keyboardType: TextInputType.name,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a barcode';
+                                    }
+                                    return null;
                                   },
+                                  focusNode: _barcodeFocusNode,
                                 ),
-                              )
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.qr_code_scanner,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                onPressed: () {
+                                  _barcodeScanner().then(
+                                    (value) {
+                                      _barcodeController =
+                                          TextEditingController(
+                                              text: _scanBarcode);
+                                    },
+                                  );
+                                },
+                              ),
                             ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Product category',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.rectangle,
+                          border:
+                              Border.all(color: Theme.of(context).primaryColor),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).shadowColor,
+                              spreadRadius: 2,
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: DropdownButtonFormField(
+                            value: _selectedValue,
+                            items: _categories,
+                            hint: Text('Select a category'),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedValue = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              errorStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              errorMaxLines: 1,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please select a category';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Retail price',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: _getRetailPrice(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.none &&
+                              snapshot.connectionState ==
+                                  ConnectionState.waiting &&
+                              snapshot.hasData == null) {
+                            return Center(
+                              child: SpinKitThreeBounce(
+                                color: Theme.of(context).primaryColor,
+                                size: 30.0,
+                              ),
+                            );
+                          }
+                          return Container(
+                            child: ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemCount: _retailPrice.length,
+                              itemBuilder: (ctx, index) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 150,
+                                      margin:
+                                          const EdgeInsets.only(right: 10.0),
+                                      child: Text(
+                                        _retailPrice[index].data['retailer'],
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 100,
+                                      child: Text(
+                                        'RM ' +
+                                            _retailPrice[index]
+                                                .data['price']
+                                                .toStringAsFixed(2),
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                    Container(
+                                      child: IconButton(
+                                        icon: Icon(Icons.delete),
+                                        color: Colors.red,
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                clipBehavior: Clip.antiAlias,
+                                                title: Text('Are you sure?'),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20)),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      await Firestore.instance
+                                                          .collection(
+                                                              'products')
+                                                          .document(
+                                                              widget.prodData[
+                                                                  'productID'])
+                                                          .collection(
+                                                              'retailPrice')
+                                                          .document(
+                                                              _retailPrice[
+                                                                      index]
+                                                                  .data['id'])
+                                                          .delete();
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text('Confirm'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
                           );
                         },
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

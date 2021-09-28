@@ -16,6 +16,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   List _retailPrice = [];
   Future selectedPrice;
+  var _isLoading = false;
 
   _getRetailPrice() async {
     var _collectionReference = await Firestore.instance
@@ -82,107 +83,120 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           IconButton(icon: Icon(Icons.favorite_outline), onPressed: () {})
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(
-                vertical: 15.0,
-                horizontal: 20.0,
+      body: _isLoading
+          ? Center(
+              child: SpinKitThreeBounce(
+                color: Theme.of(context).primaryColor,
+                size: 30.0,
               ),
-              height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).shadowColor,
-                    spreadRadius: 2,
-                    blurRadius: 2,
-                  ),
-                ],
-              ),
-              child: Container(
-                child: Image.network(
-                  widget.prodData['imageUrl'],
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            Container(
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(
-                left: 20,
-                bottom: 5,
-              ),
-              child: Text(
-                widget.prodData['name'],
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-              ),
-            ),
-            FutureBuilder(
-              future: _getRetailPrice(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.none &&
-                    snapshot.connectionState == ConnectionState.waiting &&
-                    snapshot.hasData == null) {
-                  return Center(
-                    child: SpinKitThreeBounce(
-                      color: Colors.blue,
-                      size: 30.0,
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 20.0,
                     ),
-                  );
-                }
-                return Container(
-                  child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: _retailPrice.length,
-                    itemBuilder: (ctx, index) {
-                      return RetailerCard(
-                        image,
-                        _retailPrice[index].data,
-                        _retailPrice[index].data['retailer'],
-                        _retailPrice[index].data['price'],
-                        widget.prodData['productID'],
+                    height: 220,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Theme.of(context).primaryColor,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor,
+                          spreadRadius: 2,
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Container(
+                      child: Image.network(
+                        widget.prodData['imageUrl'],
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    margin: const EdgeInsets.only(
+                      left: 20,
+                      bottom: 5,
+                    ),
+                    child: Text(
+                      widget.prodData['name'],
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                    ),
+                  ),
+                  FutureBuilder(
+                    future: _getRetailPrice(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.none &&
+                          snapshot.connectionState == ConnectionState.waiting &&
+                          snapshot.hasData == null) {
+                        return Center(
+                          child: SpinKitThreeBounce(
+                            color: Theme.of(context).primaryColor,
+                            size: 30.0,
+                          ),
+                        );
+                      }
+                      return Container(
+                        child: ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _retailPrice.length,
+                          itemBuilder: (ctx, index) {
+                            return RetailerCard(
+                              image,
+                              _retailPrice[index].data,
+                              _retailPrice[index].data['retailer'],
+                              _retailPrice[index].data['price'],
+                              widget.prodData['productID'],
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
-                );
-              },
-            ),
-            Container(
-              margin: const EdgeInsets.only(bottom: 10.0),
-              child: TextButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return RetailerDialog(_addRetailPrice);
-                    },
-                  );
-                },
-                child: Text(
-                  'Add retailer',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10.0),
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return RetailerDialog(_addRetailPrice);
+                          },
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                      },
+                      child: Text(
+                        'Add retailer',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -420,11 +434,12 @@ class _UpdatePriceDialogState extends State<UpdatePriceDialog> {
                       ),
                       TextButton(
                         onPressed: () {
-                          _submit(
-                            widget.prodID,
-                            widget.id,
-                            double.parse(_priceController.text),
-                          );
+                          if (_formKey.currentState.validate())
+                            _submit(
+                              widget.prodID,
+                              widget.id,
+                              double.parse(_priceController.text),
+                            );
                         },
                         child: Text('Confirm'),
                       )
