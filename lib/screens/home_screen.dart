@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../screens/product_detail_screen.dart';
 import '../widgets/ads_banner.dart';
@@ -18,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
-  String _scanBarcode = '';
   List _products = [];
 
   List cardList = [
@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return result;
   }
 
-  Future<void> _barcodeScanner() async {
+  Future<String> _barcodeScanner() async {
     String barcode;
     try {
       barcode = await FlutterBarcodeScanner.scanBarcode(
@@ -43,12 +43,19 @@ class _HomeScreenState extends State<HomeScreen> {
     } on PlatformException {
       barcode = 'Failed to get platform version';
     }
+    return barcode;
+  }
 
-    if (!mounted) return;
+  _getProducts() async {
+    var _collectionReference =
+        await Firestore.instance.collection('products').getDocuments();
 
-    setState(() {
-      _scanBarcode = barcode;
-    });
+    if (this.mounted) {
+      setState(() {
+        _products = _collectionReference.documents;
+      });
+    }
+    return _collectionReference.documents;
   }
 
   @override
@@ -62,50 +69,57 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.search),
             onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
-          IconButton(
-            icon: Icon(Icons.qr_code_scanner_rounded),
-            onPressed: () async {
-              var _getProducts = await Firestore.instance
-                  .collection('products')
-                  .getDocuments();
-
-              if (this.mounted) {
-                setState(() {
-                  _products = _getProducts.documents;
-                });
+          FutureBuilder(
+            future: _getProducts(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.none &&
+                  snapshot.connectionState == ConnectionState.waiting &&
+                  snapshot.hasData == null) {
+                return Center(
+                  child: SpinKitThreeBounce(
+                    color: Theme.of(context).primaryColor,
+                    size: 30.0,
+                  ),
+                );
               }
-              _barcodeScanner().then(
-                (value) {
-                  for (int i = 0; i < _products.length; i++) {
-                    if (_scanBarcode == _products[i].data['barcode']) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ProductDetailScreen(prodData: _products[i].data),
-                        ),
-                      );
-                    }
-                    // if (_scanBarcode != _products[i].data['barcode'])
-                    //   showDialog(
-                    //     context: context,
-                    //     builder: (BuildContext context) {
-                    //       return AlertDialog(
-                    //         clipBehavior: Clip.antiAlias,
-                    //         title: Text('Product not found!'),
-                    //         shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(20)),
-                    //         actions: [
-                    //           TextButton(
-                    //               onPressed: () {
-                    //                 Navigator.pop(context);
-                    //               },
-                    //               child: Text('Dismiss'))
-                    //         ],
-                    //       );
-                    //     },
-                    //   );
-                  }
+              return IconButton(
+                icon: Icon(Icons.qr_code_scanner_rounded),
+                onPressed: () {
+                  _barcodeScanner().then(
+                    (value) {
+                      for (int i = 0; i < _products.length; i++) {
+                        if (value.contains(_products[i].data['barcode'])) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailScreen(
+                                  prodData: _products[i].data),
+                            ),
+                          );
+                          break;
+                        } else {
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return AlertDialog(
+                          //       clipBehavior: Clip.antiAlias,
+                          //       title: Text('Product not found!'),
+                          //       shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(20)),
+                          //       actions: [
+                          //         TextButton(
+                          //             onPressed: () {
+                          //               Navigator.pop(context);
+                          //             },
+                          //             child: Text('Dismiss'))
+                          //       ],
+                          //     );
+                          //   },
+                          // );
+                        }
+                      }
+                    },
+                  );
                 },
               );
             },
