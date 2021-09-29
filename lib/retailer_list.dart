@@ -8,7 +8,7 @@ final retailerList = [
   Retailer(id: '5', name: 'Lotus (Tesco)'),
   Retailer(id: '6', name: 'MyNews'),
   Retailer(id: '7', name: 'SC Neighbourhood Market'),
-  Retailer(id: '8', name: 'Watsons)'),
+  Retailer(id: '8', name: 'Watsons'),
   Retailer(id: '9', name: 'Village Grocer'),
   Retailer(id: '10', name: '7Eleven'),
   Retailer(id: '11', name: '99 Speedmart'),

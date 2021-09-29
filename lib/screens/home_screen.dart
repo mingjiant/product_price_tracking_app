@@ -89,7 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           clipBehavior: Clip.antiAlias,
-                          title: Text('Product not found!'),
+                          title: Text(
+                            'Product not found!',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           content: Text('The product has not been added.'),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20)),
@@ -99,13 +102,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.pop(context);
                                 Navigator.pushNamed(context, '/add-product');
                               },
-                              child: Text('Add Product'),
+                              child: Text(
+                                'Add Product',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: Text('Dismiss'),
+                              child: Text(
+                                'Dismiss',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ],
                         );
