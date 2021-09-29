@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import '../screens/product_listing_screen.dart';
 import '../screens/product_detail_screen.dart';
 import '../widgets/ads_banner.dart';
 // import '../widgets/product_item.dart';
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
-  List _products = [];
+  List _products;
 
   List cardList = [
     AdsBanner('./assets/images/banner1.jpg'),
@@ -46,18 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return barcode;
   }
 
-  _getProducts() async {
-    var _collectionReference =
-        await Firestore.instance.collection('products').getDocuments();
-
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
-    }
-    return _collectionReference.documents;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,57 +57,61 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.search),
             onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
-          FutureBuilder(
-            future: _getProducts(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.none &&
-                  snapshot.connectionState == ConnectionState.waiting &&
-                  snapshot.hasData == null) {
-                return Center(
-                  child: SpinKitThreeBounce(
-                    color: Theme.of(context).primaryColor,
-                    size: 30.0,
-                  ),
-                );
-              }
-              return IconButton(
-                icon: Icon(Icons.qr_code_scanner_rounded),
-                onPressed: () {
-                  _barcodeScanner().then(
-                    (value) {
-                      for (int i = 0; i < _products.length; i++) {
-                        if (value.contains(_products[i].data['barcode'])) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetailScreen(
-                                  prodData: _products[i].data),
+          IconButton(
+            icon: Icon(Icons.qr_code_scanner_rounded),
+            onPressed: () {
+              _barcodeScanner().then(
+                (value) async {
+                  var _collectionReference = await Firestore.instance
+                      .collection('products')
+                      .where('barcode', isEqualTo: value)
+                      .getDocuments();
+
+                  if (this.mounted) {
+                    setState(() {
+                      _products = _collectionReference.documents;
+                    });
+                  }
+
+                  if (value == '-1') {
+                    return null;
+                  } else if (_products.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProductDetailScreen(prodData: _products[0].data),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          clipBehavior: Clip.antiAlias,
+                          title: Text('Product not found!'),
+                          content: Text('The product has not been added.'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/add-product');
+                              },
+                              child: Text('Add Product'),
                             ),
-                          );
-                          break;
-                        } else {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (BuildContext context) {
-                          //     return AlertDialog(
-                          //       clipBehavior: Clip.antiAlias,
-                          //       title: Text('Product not found!'),
-                          //       shape: RoundedRectangleBorder(
-                          //           borderRadius: BorderRadius.circular(20)),
-                          //       actions: [
-                          //         TextButton(
-                          //             onPressed: () {
-                          //               Navigator.pop(context);
-                          //             },
-                          //             child: Text('Dismiss'))
-                          //       ],
-                          //     );
-                          //   },
-                          // );
-                        }
-                      }
-                    },
-                  );
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Dismiss'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
               );
             },
@@ -208,15 +200,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      CategoryIcon(Icon(Icons.category_rounded), null, 'All'),
-                      CategoryIcon(Icon(Icons.fastfood), null, 'Food'),
-                      CategoryIcon(Icon(Icons.icecream), null, 'Ice cream'),
-                      CategoryIcon(Icon(Icons.ac_unit), null, 'Frozen'),
-                      CategoryIcon(Icon(Icons.local_drink), null, 'Beverages'),
-                      CategoryIcon(Icon(Icons.healing), null, 'Health'),
-                      CategoryIcon(
-                          Icon(Icons.handyman_outlined), null, 'Household'),
-                      CategoryIcon(Icon(Icons.pets), null, 'Pets'),
+                      CategoryIcon(Icon(Icons.fastfood), 'Snacks'),
+                      CategoryIcon(Icon(Icons.icecream), 'Ice cream'),
+                      CategoryIcon(Icon(Icons.breakfast_dining), 'Bakery'),
+                      CategoryIcon(Icon(Icons.ac_unit), 'Frozen'),
+                      CategoryIcon(Icon(Icons.local_drink), 'Beverages'),
+                      CategoryIcon(Icon(Icons.healing), 'Health'),
+                      CategoryIcon(Icon(Icons.handyman_outlined), 'Household'),
+                      CategoryIcon(Icon(Icons.pets), 'Pets'),
                     ],
                   ),
                 ],
@@ -324,10 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class CategoryIcon extends StatelessWidget {
   final icon;
-  final onPress;
   final String categoryName;
 
-  CategoryIcon(this.icon, this.onPress, this.categoryName);
+  CategoryIcon(this.icon, this.categoryName);
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +328,17 @@ class CategoryIcon extends StatelessWidget {
           IconButton(
             color: Theme.of(context).primaryColor,
             icon: icon,
-            onPressed: () {},
+            onPressed: () {
+              print(categoryName);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductListingScreen(
+                    category: categoryName,
+                  ),
+                ),
+              );
+            },
           ),
           Text(
             categoryName,
