@@ -73,15 +73,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const String image = './assets/images/100plus.jpg';
+    // final user = Provider.of<User>(context);
+
+    // void _addUserFavourite(String productId) async {
+    //   await Firestore.instance.collection('users').document(user.id).setData({
+    //     'userFavourites': [productId],
+    //   });
+    // }
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(widget.prodData['name']),
-        actions: [
-          IconButton(icon: Icon(Icons.favorite_outline), onPressed: () {})
-        ],
       ),
       body: _isLoading
           ? Center(
@@ -157,7 +160,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           itemCount: _retailPrice.length,
                           itemBuilder: (ctx, index) {
                             return RetailerCard(
-                              image,
                               _retailPrice[index].data,
                               _retailPrice[index].data['retailer'],
                               _retailPrice[index].data['price'],
@@ -202,13 +204,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 }
 
 class RetailerCard extends StatelessWidget {
-  final String image;
   final data;
   final String retailer;
   final double price;
   final String prodID;
 
-  RetailerCard(this.image, this.data, this.retailer, this.price, this.prodID);
+  RetailerCard(this.data, this.retailer, this.price, this.prodID);
 
   @override
   Widget build(BuildContext context) {
@@ -225,14 +226,6 @@ class RetailerCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Container(
-            //   height: 50,
-            //   width: 50,
-            //   child: Image.asset(
-            //     image,
-            //     fit: BoxFit.contain,
-            //   ),
-            // ),
             Container(
               width: 100,
               child: Text(
