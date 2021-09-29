@@ -55,7 +55,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   }
 
   void _loadCategories() async {
-    var categories = PRODUCT_CATEGORIES;
+    var categories = ProductCategories;
     categories.forEach((category) {
       setState(() {
         _categories.add(
