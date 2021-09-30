@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AccountScreen extends StatelessWidget {
-  static const routeName = '/account';
+class SettingsScreen extends StatelessWidget {
+  static const routeName = '/settings';
 
   Future signOut() async {
     try {
@@ -21,7 +21,7 @@ class AccountScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Account'),
+        title: Text('Settings'),
       ),
       body: Container(
         margin: const EdgeInsets.all(20),
@@ -35,38 +35,6 @@ class AccountScreen extends StatelessWidget {
         ),
         child: ListView(
           children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 25),
-              height: 100,
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    // backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.account_circle_outlined,
-                      size: 60,
-                    ),
-                  ),
-                  Container(
-                    width: 150,
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Username',
-                      maxLines: 2,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Divider(
-              color: Theme.of(context).primaryColor,
-              thickness: 1,
-            ),
             ListTile(
               leading: Icon(
                 Icons.category,
@@ -150,9 +118,9 @@ class AccountScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.account_circle_outlined,
+              Icons.settings,
             ),
-            label: 'Account',
+            label: 'Settings',
             backgroundColor: Theme.of(context).primaryColor,
           ),
         ],

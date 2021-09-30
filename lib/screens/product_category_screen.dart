@@ -119,9 +119,9 @@ class ProductCategoryScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.account_circle_outlined,
+              Icons.settings,
             ),
-            label: 'Account',
+            label: 'Settings',
             backgroundColor: Theme.of(context).primaryColor,
           ),
         ],
@@ -139,7 +139,7 @@ class ProductCategoryScreen extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/favourite');
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/account');
+              Navigator.pushReplacementNamed(context, '/settings');
               break;
           }
         },

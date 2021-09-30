@@ -11,8 +11,6 @@ class FavouriteScreen extends StatelessWidget {
 
     var _favouriteProducts = [
       FavouriteItem(),
-      FavouriteItem(),
-      FavouriteItem(),
     ];
 
     return Scaffold(
@@ -80,9 +78,9 @@ class FavouriteScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.account_circle_outlined,
+              Icons.settings,
             ),
-            label: 'Account',
+            label: 'Settings',
             backgroundColor: Theme.of(context).primaryColor,
           ),
         ],
@@ -100,7 +98,7 @@ class FavouriteScreen extends StatelessWidget {
             case 3:
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/account');
+              Navigator.pushReplacementNamed(context, '/settings');
 
               break;
           }

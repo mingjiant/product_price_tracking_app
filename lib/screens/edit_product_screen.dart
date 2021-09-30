@@ -137,23 +137,31 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _pickImage() async {
-    final picker = ImagePicker();
-    final pickedImage =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 60);
-    final pickedImageFile = File(pickedImage.path);
-    setState(() {
-      _productImageFile = pickedImageFile;
-    });
+    try {
+      final picker = ImagePicker();
+      final pickedImage =
+          await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+      final pickedImageFile = File(pickedImage.path);
+      setState(() {
+        _productImageFile = pickedImageFile;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _pickImageGallery() async {
-    final picker = ImagePicker();
-    final pickedImage =
-        await picker.getImage(source: ImageSource.gallery, imageQuality: 60);
-    final pickedImageFile = File(pickedImage.path);
-    setState(() {
-      _productImageFile = pickedImageFile;
-    });
+    try {
+      final picker = ImagePicker();
+      final pickedImage =
+          await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
+      final pickedImageFile = File(pickedImage.path);
+      setState(() {
+        _productImageFile = pickedImageFile;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override

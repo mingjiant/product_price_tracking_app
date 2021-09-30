@@ -36,7 +36,7 @@ class FavouriteItem extends StatelessWidget {
                       Container(
                         width: 185,
                         child: Text(
-                          'Product title',
+                          '100 Plus 325ml',
                           maxLines: 2,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
@@ -52,7 +52,7 @@ class FavouriteItem extends StatelessWidget {
                       Container(
                         width: 170,
                         child: Text(
-                          'Retailer: Jaya Grocer Subang Jaya',
+                          'Retailer: Jaya Grocer',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),

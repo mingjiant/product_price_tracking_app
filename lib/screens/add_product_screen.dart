@@ -162,10 +162,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       });
     } catch (error) {
       print(error);
-      setState(() {
-        _isLoading = false;
-      });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   _getProducts() async {

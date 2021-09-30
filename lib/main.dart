@@ -9,7 +9,7 @@ import './screens/search_screen.dart';
 import './screens/product_category_screen.dart';
 import 'screens/add_product_screen.dart';
 import './screens/favourite_screen.dart';
-import './screens/account_screen.dart';
+import 'screens/settings_screen.dart';
 import './screens/manage_product_screen.dart';
 import './screens/auth_screen.dart';
 import './screens/splash_screen.dart';
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         ProductCategoryScreen.routeName: (ctx) => ProductCategoryScreen(),
         AddProductScreen.routeName: (ctx) => AddProductScreen(),
         FavouriteScreen.routeName: (ctx) => FavouriteScreen(),
-        AccountScreen.routeName: (ctx) => AccountScreen(),
+        SettingsScreen.routeName: (ctx) => SettingsScreen(),
         ManageProductScreen.routeName: (ctx) => ManageProductScreen(),
         AuthScreen.routeName: (ctx) => AuthScreen(),
       },
