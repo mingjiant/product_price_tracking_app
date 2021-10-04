@@ -119,11 +119,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     child: Container(
-                      child: Image.network(
+                        child: FadeInImage(
+                      fit: BoxFit.contain,
+                      image: NetworkImage(
                         widget.prodData['imageUrl'],
-                        fit: BoxFit.contain,
                       ),
-                    ),
+                      placeholder: NetworkImage(
+                          'https://via.placeholder.com/500?text=Loading+image'),
+                    )),
                   ),
                   Container(
                     alignment: Alignment.centerLeft,

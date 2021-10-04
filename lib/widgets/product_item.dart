@@ -50,10 +50,12 @@ class ProductItem extends StatelessWidget {
                 width: 130.0,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.0),
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: Image.network(image).image,
-                  ),
+                ),
+                child: FadeInImage(
+                  image: Image.network(image).image,
+                  fit: BoxFit.cover,
+                  placeholder: NetworkImage(
+                      'https://via.placeholder.com/200?text=Loading+image'),
                 ),
               ),
               Divider(

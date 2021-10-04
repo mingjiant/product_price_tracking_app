@@ -239,8 +239,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                       ),
                                     ],
                                   ),
-                                  child: Image.network(
-                                    widget.prodData['imageUrl'],
+                                  child: FadeInImage(
+                                    image: NetworkImage(
+                                        widget.prodData['imageUrl']),
+                                    placeholder: NetworkImage(
+                                        'https://via.placeholder.com/500?text=Loading+image'),
                                   ),
                                 ),
                                 Container(
