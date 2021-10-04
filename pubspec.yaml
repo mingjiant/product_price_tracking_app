@@ -55,6 +55,14 @@ flutter:
     - assets/images/banner1.jpg
     - assets/images/banner2.jpeg
     - assets/images/100plus.jpg
+    - assets/images/logo_white.png
+    - assets/images/logo_blue.png
+    - assets/images/1.png
+    - assets/images/2.png
+    - assets/images/3.png
+    - assets/images/4.png
+    - assets/images/5.png
+    - assets/images/6.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
