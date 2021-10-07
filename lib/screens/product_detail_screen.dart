@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 
 import '../widgets/retailer_dialog.dart';
 
@@ -17,46 +19,56 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   List _retailPrice = [];
   Future selectedPrice;
   var _isLoading = false;
+  var _isFavourite = false;
 
   _getRetailPrice() async {
-    var _collectionReference = await Firestore.instance
-        .collection('products')
-        .document(widget.prodData['productID'])
-        .collection('retailPrice')
-        .orderBy('price')
-        .getDocuments();
+    try {
+      var _collectionReference = await Firestore.instance
+          .collection('products')
+          .document(widget.prodData['productID'])
+          .collection('retailPrice')
+          .orderBy('price')
+          .getDocuments();
 
-    if (this.mounted) {
-      setState(() {
-        _retailPrice = _collectionReference.documents;
-      });
+      if (this.mounted) {
+        setState(() {
+          _retailPrice = _collectionReference.documents;
+        });
+      }
+      return _collectionReference.documents;
+    } catch (e) {
+      print(e);
     }
-    return _collectionReference.documents;
   }
 
   void _addRetailPrice(
     String retailer,
     double price,
   ) async {
-    var docId = Firestore.instance
-        .collection('products')
-        .document(widget.prodData['productID'])
-        .collection('retailPrice')
-        .document()
-        .documentID;
+    try {
+      var docId = Firestore.instance
+          .collection('products')
+          .document(widget.prodData['productID'])
+          .collection('retailPrice')
+          .document()
+          .documentID;
 
-    await Firestore.instance
-        .collection('products')
-        .document(widget.prodData['productID'])
-        .collection('retailPrice')
-        .document(docId)
-        .setData(
-      {
-        'id': docId,
-        'retailer': retailer,
-        'price': price,
-      },
-    );
+      await Firestore.instance
+          .collection('products')
+          .document(widget.prodData['productID'])
+          .collection('retailPrice')
+          .document(docId)
+          .setData(
+        {
+          'id': docId,
+          'retailer': retailer,
+          'price': price,
+          'lastUpdate': DateTime.now(),
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -71,20 +83,70 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.didChangeDependencies();
   }
 
+  void _addUserFavourite(String productId) async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    try {
+      await Firestore.instance
+          .collection('users')
+          .document(user.uid)
+          .updateData({
+        'favourites': FieldValue.arrayUnion([productId]),
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _removeUserFavourite(String productId) async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    try {
+      await Firestore.instance
+          .collection('users')
+          .document(user.uid)
+          .updateData({
+        'favourites': FieldValue.arrayRemove([productId]),
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _getUserFavourites() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    try {
+      var _snapshot =
+          await Firestore.instance.collection('users').document(user.uid).get();
+      return _snapshot;
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final user = Provider.of<User>(context);
-
-    // void _addUserFavourite(String productId) async {
-    //   await Firestore.instance.collection('users').document(user.id).setData({
-    //     'userFavourites': [productId],
-    //   });
-    // }
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text(widget.prodData['name']),
+        // actions: [
+        //   if (_isFavourite == false)
+        //     IconButton(
+        //         icon: Icon(Icons.favorite_outline),
+        //         onPressed: () {
+        //           _addUserFavourite(widget.prodData['productID']);
+        //           _isFavourite = true;
+        //         })
+        //   else if (_isFavourite == true)
+        //     IconButton(
+        //         icon: Icon(Icons.favorite),
+        //         onPressed: () {
+        //           _removeUserFavourite(widget.prodData['productID']);
+        //           _isFavourite = false;
+        //         })
+        // ],
       ),
       body: _isLoading
           ? Center(
@@ -119,14 +181,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     child: Container(
-                        child: FadeInImage(
-                      fit: BoxFit.contain,
-                      image: NetworkImage(
-                        widget.prodData['imageUrl'],
+                      child: FadeInImage(
+                        fit: BoxFit.contain,
+                        image: NetworkImage(
+                          widget.prodData['imageUrl'],
+                        ),
+                        placeholder: NetworkImage(
+                            'https://via.placeholder.com/500?text=Loading+image'),
                       ),
-                      placeholder: NetworkImage(
-                          'https://via.placeholder.com/500?text=Loading+image'),
-                    )),
+                    ),
                   ),
                   Container(
                     alignment: Alignment.centerLeft,
@@ -216,6 +279,8 @@ class RetailerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final time =
+        DateFormat('dd MMMM yyyy hh:mm a').format(data['lastUpdate'].toDate());
     return Card(
       shape: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -226,48 +291,59 @@ class RetailerCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Container(
         margin: const EdgeInsets.all(10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
-            Container(
-              width: 100,
-              child: Text(
-                retailer,
-                textAlign: TextAlign.start,
-                maxLines: 2,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            Container(
-              width: 80,
-              margin: const EdgeInsets.symmetric(horizontal: 2.0),
-              child: Text(
-                'RM ' + price.toStringAsFixed(2),
-                maxLines: 2,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return UpdatePriceDialog(prodID, data['id']);
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 100,
+                  child: Text(
+                    retailer,
+                    textAlign: TextAlign.start,
+                    maxLines: 2,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  width: 80,
+                  margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Text(
+                    'RM ' + price.toStringAsFixed(2),
+                    maxLines: 2,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return UpdatePriceDialog(prodID, data['id']);
+                      },
+                    );
                   },
-                );
-              },
+                  child: Text(
+                    'Update',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.grey.shade300,
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.only(top: 5),
               child: Text(
-                'Update',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                shadowColor: Colors.grey.shade300,
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+                'Updated on: ' + time,
               ),
             ),
           ],
@@ -308,6 +384,7 @@ class _UpdatePriceDialogState extends State<UpdatePriceDialog> {
         .updateData(
       {
         'price': price,
+        'lastUpdate': DateTime.now(),
       },
     );
     Navigator.pop(context);

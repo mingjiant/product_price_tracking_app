@@ -158,6 +158,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           'id': docId,
           'retailer': _selectedRetailer,
           'price': double.parse(_priceController.text),
+          'lastUpdate': DateTime.now(),
         });
       });
     } catch (error) {
