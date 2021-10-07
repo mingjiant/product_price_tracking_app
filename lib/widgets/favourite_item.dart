@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../screens/product_detail_screen.dart';
+
 class FavouriteItem extends StatelessWidget {
+  final String name;
+  final image;
+  final prodData;
+
+  FavouriteItem(this.name, this.image, this.prodData);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigator.pushNamed(context, '/product-detail');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(
+              prodData: prodData,
+            ),
+          ),
+        );
       },
       child: Container(
         height: 160,
@@ -22,9 +37,20 @@ class FavouriteItem extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
+                  margin: const EdgeInsets.only(
+                    top: 10.0,
+                    bottom: 3.0,
+                  ),
                   width: 120,
-                  height: 100,
-                  child: Image.asset('./assets/images/100plus.jpg'),
+                  height: 130,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: FadeInImage(
+                    image: Image.network(image).image,
+                    placeholder: NetworkImage(
+                        'https://via.placeholder.com/110x150?text=Loading+image'),
+                  ),
                 ),
                 Container(
                   width: 190,
@@ -36,7 +62,7 @@ class FavouriteItem extends StatelessWidget {
                       Container(
                         width: 185,
                         child: Text(
-                          '100 Plus 325ml',
+                          name,
                           maxLines: 2,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
