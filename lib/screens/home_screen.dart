@@ -128,7 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        // child: Expanded(
         child: Column(
           children: [
             CarouselSlider(
@@ -222,17 +221,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(left: 20),
-              child: Text(
-                'Featured products',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   margin: const EdgeInsets.only(left: 20),
+            //   child: Text(
+            //     'Featured products',
+            //     style: TextStyle(
+            //       fontWeight: FontWeight.bold,
+            //       fontSize: 16,
+            //     ),
+            //   ),
+            // ),
             // Container(
             //   margin: const EdgeInsets.symmetric(horizontal: 5),
             //   child: GridView.builder(
@@ -255,7 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         backgroundColor: Theme.of(context).primaryColor,
