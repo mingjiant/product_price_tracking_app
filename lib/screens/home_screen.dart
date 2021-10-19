@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
+import '../screens/product_listing_screen.dart';
+import '../screens/product_detail_screen.dart';
 import '../widgets/ads_banner.dart';
 // import '../widgets/product_item.dart';
 
@@ -16,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
-  String _scanBarcode = '';
+  List _products;
 
   List cardList = [
     AdsBanner('./assets/images/banner1.jpg'),
@@ -31,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return result;
   }
 
-  Future<void> _barcodeScanner() async {
+  Future<String> _barcodeScanner() async {
     String barcode;
     try {
       barcode = await FlutterBarcodeScanner.scanBarcode(
@@ -40,19 +43,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } on PlatformException {
       barcode = 'Failed to get platform version';
     }
-
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcode;
-    });
+    return barcode;
   }
 
   @override
   Widget build(BuildContext context) {
-    // final String name = '100 plus 325 ml';
-    // final String image = 'assets/images/100plus.jpg';
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -60,16 +55,79 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
           IconButton(
             icon: Icon(Icons.qr_code_scanner_rounded),
-            onPressed: () => _barcodeScanner(),
+            onPressed: () {
+              _barcodeScanner().then(
+                (value) async {
+                  var _collectionReference = await Firestore.instance
+                      .collection('products')
+                      .where('barcode', isEqualTo: value)
+                      .getDocuments();
+
+                  if (this.mounted) {
+                    setState(() {
+                      _products = _collectionReference.documents;
+                    });
+                  }
+
+                  if (value == '-1') {
+                    return null;
+                  } else if (_products.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProductDetailScreen(prodData: _products[0].data),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          clipBehavior: Clip.antiAlias,
+                          title: Text(
+                            'Product not found!',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          content: Text('The product has not been added.'),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, '/add-product');
+                              },
+                              child: Text(
+                                'Add Product',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                'Dismiss',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+              );
+            },
           ),
         ],
       ),
       body: SingleChildScrollView(
-        // child: Expanded(
         child: Column(
           children: [
             CarouselSlider(
@@ -150,31 +208,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      CategoryIcon(Icon(Icons.category_rounded), null, 'All'),
-                      CategoryIcon(Icon(Icons.fastfood), null, 'Food'),
-                      CategoryIcon(Icon(Icons.icecream), null, 'Ice cream'),
-                      CategoryIcon(Icon(Icons.ac_unit), null, 'Frozen'),
-                      CategoryIcon(Icon(Icons.local_drink), null, 'Beverages'),
-                      CategoryIcon(Icon(Icons.healing), null, 'Health'),
-                      CategoryIcon(
-                          Icon(Icons.handyman_outlined), null, 'Household'),
-                      CategoryIcon(Icon(Icons.pets), null, 'Pets'),
+                      CategoryIcon(Icon(Icons.fastfood), 'Snacks'),
+                      CategoryIcon(Icon(Icons.icecream), 'Ice cream'),
+                      CategoryIcon(Icon(Icons.breakfast_dining), 'Bakery'),
+                      CategoryIcon(Icon(Icons.ac_unit), 'Frozen'),
+                      CategoryIcon(Icon(Icons.local_drink), 'Beverages'),
+                      CategoryIcon(Icon(Icons.healing), 'Health'),
+                      CategoryIcon(Icon(Icons.handyman_outlined), 'Household'),
+                      CategoryIcon(Icon(Icons.pets), 'Pets'),
                     ],
                   ),
                 ],
               ),
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              margin: const EdgeInsets.only(left: 20),
-              child: Text(
-                'Featured products',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   margin: const EdgeInsets.only(left: 20),
+            //   child: Text(
+            //     'Featured products',
+            //     style: TextStyle(
+            //       fontWeight: FontWeight.bold,
+            //       fontSize: 16,
+            //     ),
+            //   ),
+            // ),
             // Container(
             //   margin: const EdgeInsets.symmetric(horizontal: 5),
             //   child: GridView.builder(
@@ -197,7 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      // ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         backgroundColor: Theme.of(context).primaryColor,
@@ -235,9 +291,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.account_circle_outlined,
+              Icons.settings,
             ),
-            label: 'Account',
+            label: 'Settings',
             backgroundColor: Theme.of(context).primaryColor,
           ),
         ],
@@ -255,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushReplacementNamed(context, '/favourite');
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/account');
+              Navigator.pushReplacementNamed(context, '/settings');
               break;
           }
         },
@@ -266,10 +322,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class CategoryIcon extends StatelessWidget {
   final icon;
-  final onPress;
   final String categoryName;
 
-  CategoryIcon(this.icon, this.onPress, this.categoryName);
+  CategoryIcon(this.icon, this.categoryName);
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +335,17 @@ class CategoryIcon extends StatelessWidget {
           IconButton(
             color: Theme.of(context).primaryColor,
             icon: icon,
-            onPressed: () {},
+            onPressed: () {
+              print(categoryName);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductListingScreen(
+                    category: categoryName,
+                  ),
+                ),
+              );
+            },
           ),
           Text(
             categoryName,

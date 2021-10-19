@@ -13,7 +13,7 @@ class ProductCategoryScreen extends StatelessWidget {
     int _selectedIndex = 1;
 
     final categoryTitle =
-        PRODUCT_CATEGORIES.map((catData) => catData.title).toList();
+        ProductCategories.map((catData) => catData.title).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -56,7 +56,6 @@ class ProductCategoryScreen extends StatelessWidget {
                     itemCount: categoryTitle.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        leading: categoriesIcon[index],
                         title: Text(
                           categoryTitle[index],
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -66,7 +65,6 @@ class ProductCategoryScreen extends StatelessWidget {
                           color: Theme.of(context).primaryColor,
                         ),
                         onTap: () {
-                          // Navigator.pushNamed(context, '/product-listing');
                           print(categoryTitle[index]);
                           Navigator.push(
                             context,
@@ -121,9 +119,9 @@ class ProductCategoryScreen extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.account_circle_outlined,
+              Icons.settings,
             ),
-            label: 'Account',
+            label: 'Settings',
             backgroundColor: Theme.of(context).primaryColor,
           ),
         ],
@@ -141,7 +139,7 @@ class ProductCategoryScreen extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/favourite');
               break;
             case 4:
-              Navigator.pushReplacementNamed(context, '/account');
+              Navigator.pushReplacementNamed(context, '/settings');
               break;
           }
         },

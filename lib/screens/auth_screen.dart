@@ -94,41 +94,69 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Container(
               height: deviceSize.height,
               width: deviceSize.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Flexible(
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 20.0),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 30.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 8,
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
-                          )
-                        ],
+              child: Stack(
+                children: [
+                  Stack(
+                    children: [
+                      Positioned(
+                        top: -20,
+                        left: -180,
+                        child: Image.asset('assets/images/6.png'),
                       ),
-                      child: Text(
-                        'EASY TRACK',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Positioned(
+                        top: 10,
+                        left: -20,
+                        child: Image.asset('assets/images/1.png'),
                       ),
-                    ),
+                      Positioned(
+                        top: -10,
+                        left: -50,
+                        child: Image.asset('assets/images/1.png'),
+                      ),
+                      Positioned(
+                        top: -10,
+                        right: -20,
+                        child: Image.asset('assets/images/5.png'),
+                      ),
+                      Positioned(
+                        bottom: -60,
+                        right: 120,
+                        child: Image.asset('assets/images/2.png'),
+                      ),
+                      Positioned(
+                        bottom: -60,
+                        right: 30,
+                        child: Image.asset('assets/images/2.png'),
+                      ),
+                      Positioned(
+                        bottom: -60,
+                        left: 150,
+                        child: Image.asset('assets/images/3.png'),
+                      ),
+                    ],
                   ),
-                  Flexible(
-                    flex: deviceSize.width > 600 ? 2 : 1,
-                    child: AuthCard(
-                      _submitAuthForm,
-                      _isLoading,
+                  Container(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Flexible(
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 20.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 30.0),
+                            child: Image.asset('assets/images/logo_white.png'),
+                          ),
+                        ),
+                        Flexible(
+                          flex: deviceSize.width > 600 ? 2 : 1,
+                          child: AuthCard(
+                            _submitAuthForm,
+                            _isLoading,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
