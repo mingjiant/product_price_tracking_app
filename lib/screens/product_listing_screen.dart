@@ -18,26 +18,25 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   var _isLoading = false;
 
   _getProducts() async {
-    setState(() {
+    try {
       _isLoading = true;
-    });
+      var _collectionReference = await Firestore.instance
+          .collection('products')
+          .where('category', isEqualTo: widget.category)
+          .getDocuments();
 
-    var _collectionReference = await Firestore.instance
-        .collection('products')
-        .where('category', isEqualTo: widget.category)
-        .getDocuments();
-
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
-    }
-
-    setState(() {
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
       _isLoading = false;
-    });
 
-    return _collectionReference.documents;
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
+      _isLoading = false;
+    }
   }
 
   @override

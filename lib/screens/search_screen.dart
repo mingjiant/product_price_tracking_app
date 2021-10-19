@@ -18,15 +18,19 @@ class _SearchScreenState extends State<SearchScreen> {
   List _searchResult = [];
 
   _getProducts() async {
-    var _collectionReference =
-        await Firestore.instance.collection('products').getDocuments();
+    try {
+      var _collectionReference =
+          await Firestore.instance.collection('products').getDocuments();
 
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
     }
-    return _collectionReference.documents;
   }
 
   void searchProduct(String searchKey) {

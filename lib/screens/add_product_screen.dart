@@ -54,7 +54,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.dispose();
   }
 
-  void _loadCategories() async {
+  void _loadCategories() {
     var categories = ProductCategories;
     categories.forEach((category) {
       setState(() {
@@ -68,7 +68,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
-  void _loadRetailers() async {
+  void _loadRetailers() {
     var retailers = retailerList;
     retailers.forEach((retailer) {
       setState(() {
@@ -161,24 +161,45 @@ class _AddProductScreenState extends State<AddProductScreen> {
           'lastUpdate': DateTime.now(),
         });
       });
+    } on PlatformException catch (error) {
+      var message = 'An error occurred, failed to add product';
+
+      if (error.message != null) {
+        message = error.message;
+      }
+
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (error) {
       print(error);
+      setState(() {
+        _isLoading = false;
+      });
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   _getProducts() async {
-    var _collectionReference =
-        await Firestore.instance.collection('products').getDocuments();
+    try {
+      var _collectionReference =
+          await Firestore.instance.collection('products').getDocuments();
 
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
     }
-    return _collectionReference.documents;
   }
 
   @override

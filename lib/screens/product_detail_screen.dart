@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +19,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   List _retailPrice = [];
   Future selectedPrice;
   var _isLoading = false;
-  var _isFavourite = false;
+  // var _isFavourite = false;
 
   _getRetailPrice() async {
     try {
@@ -66,8 +66,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           'lastUpdate': DateTime.now(),
         },
       );
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      print(error);
     }
   }
 
@@ -83,47 +83,47 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.didChangeDependencies();
   }
 
-  void _addUserFavourite(String productId) async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    try {
-      await Firestore.instance
-          .collection('users')
-          .document(user.uid)
-          .updateData({
-        'favourites': FieldValue.arrayUnion([productId]),
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _addUserFavourite(String productId) async {
+  //   final FirebaseAuth _auth = FirebaseAuth.instance;
+  //   FirebaseUser user = await _auth.currentUser();
+  //   try {
+  //     await Firestore.instance
+  //         .collection('users')
+  //         .document(user.uid)
+  //         .updateData({
+  //       'favourites': FieldValue.arrayUnion([productId]),
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
-  void _removeUserFavourite(String productId) async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    try {
-      await Firestore.instance
-          .collection('users')
-          .document(user.uid)
-          .updateData({
-        'favourites': FieldValue.arrayRemove([productId]),
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _removeUserFavourite(String productId) async {
+  //   final FirebaseAuth _auth = FirebaseAuth.instance;
+  //   FirebaseUser user = await _auth.currentUser();
+  //   try {
+  //     await Firestore.instance
+  //         .collection('users')
+  //         .document(user.uid)
+  //         .updateData({
+  //       'favourites': FieldValue.arrayRemove([productId]),
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
-  _getUserFavourites() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    try {
-      var _snapshot =
-          await Firestore.instance.collection('users').document(user.uid).get();
-      return _snapshot;
-    } catch (e) {
-      print(e);
-    }
-  }
+  // _getUserFavourites() async {
+  //   final FirebaseAuth _auth = FirebaseAuth.instance;
+  //   FirebaseUser user = await _auth.currentUser();
+  //   try {
+  //     var _snapshot =
+  //         await Firestore.instance.collection('users').document(user.uid).get();
+  //     return _snapshot;
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

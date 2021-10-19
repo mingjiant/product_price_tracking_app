@@ -52,7 +52,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
-  void _loadCategories() async {
+  void _loadCategories() {
     var categories = ProductCategories;
     categories.forEach((category) {
       setState(() {
@@ -84,19 +84,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   _getRetailPrice() async {
-    var _collectionReference = await Firestore.instance
-        .collection('products')
-        .document(widget.prodData['productID'])
-        .collection('retailPrice')
-        .orderBy('price')
-        .getDocuments();
+    try {
+      var _collectionReference = await Firestore.instance
+          .collection('products')
+          .document(widget.prodData['productID'])
+          .collection('retailPrice')
+          .orderBy('price')
+          .getDocuments();
 
-    if (this.mounted) {
-      setState(() {
-        _retailPrice = _collectionReference.documents;
-      });
+      if (this.mounted) {
+        setState(() {
+          _retailPrice = _collectionReference.documents;
+        });
+      }
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
     }
-    return _collectionReference.documents;
   }
 
   void _editProduct() async {
@@ -128,6 +132,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
               _productImageFile == null ? widget.prodData['imageUrl'] : imageUrl
         },
       );
+    } on PlatformException catch (error) {
+      var message = 'An error occurred, failed to add product';
+
+      if (error.message != null) {
+        message = error.message;
+      }
+
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
     } catch (error) {
       print(error);
     }

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -14,53 +14,49 @@ class FavouriteScreen extends StatefulWidget {
 }
 
 class _FavouriteScreenState extends State<FavouriteScreen> {
-  List _userFavourites = [];
+  // List _userFavourites = [];
   List _products = [];
-  var _isLoading = false;
+  // var _isLoading = false;
 
-  _getUserFavourites() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    try {
-      var _querySnapshot =
-          await Firestore.instance.collection('users').document(user.uid).get();
+  // _getUserFavourites() async {
+  //   final FirebaseAuth _auth = FirebaseAuth.instance;
+  //   FirebaseUser user = await _auth.currentUser();
+  //   try {
+  //     var _querySnapshot =
+  //         await Firestore.instance.collection('users').document(user.uid).get();
 
-      if (_querySnapshot.exists &&
-          _querySnapshot.data.containsKey('favourites') &&
-          _querySnapshot.data['favorites'] is List) {
-        return List<String>.from(_querySnapshot.data['favorites']);
-      }
-      return [];
-    } catch (e) {
-      print(e);
-    }
-  }
+  //     if (_querySnapshot.exists &&
+  //         _querySnapshot.data.containsKey('favourites') &&
+  //         _querySnapshot.data['favorites'] is List) {
+  //       return List<String>.from(_querySnapshot.data['favorites']);
+  //     }
+  //     return [];
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   _getProducts() async {
-    setState(() {
-      _isLoading = true;
-    });
+    try {
+      var _collectionReference =
+          await Firestore.instance.collection('products').getDocuments();
 
-    var _collectionReference =
-        await Firestore.instance.collection('products').getDocuments();
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
 
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
     }
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    return _collectionReference.documents;
   }
 
   @override
   Widget build(BuildContext context) {
     int _selectedIndex = 3;
-    var favourites = _getUserFavourites();
+    // var favourites = _getUserFavourites();
 
     return Scaffold(
       appBar: AppBar(

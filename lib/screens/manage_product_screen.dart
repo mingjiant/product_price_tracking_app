@@ -14,17 +14,25 @@ class ManageProductScreen extends StatefulWidget {
 class _ManageProductScreenState extends State<ManageProductScreen> {
   List _products = [];
   Future selectedProducts;
+  var _isLoading = false;
 
   _getProducts() async {
-    var _collectionReference =
-        await Firestore.instance.collection('products').getDocuments();
+    try {
+      _isLoading = true;
+      var _collectionReference =
+          await Firestore.instance.collection('products').getDocuments();
 
-    if (this.mounted) {
-      setState(() {
-        _products = _collectionReference.documents;
-      });
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
+      _isLoading = false;
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
+      _isLoading = false;
     }
-    return _collectionReference.documents;
   }
 
   @override
@@ -46,40 +54,49 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
         centerTitle: true,
         title: Text('Manage product'),
       ),
-      body: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-        child: _products.length == 0
-            ? Container(
-                child: Center(
-                  child: Text('No products'),
-                ),
-              )
-            : FutureBuilder(
-                future: _getProducts(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.none &&
-                      snapshot.connectionState == ConnectionState.waiting &&
-                      snapshot.hasData == null) {
-                    return Center(
-                      child: SpinKitThreeBounce(
-                        color: Theme.of(context).primaryColor,
-                        size: 30.0,
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: _products.length,
-                    itemBuilder: (ctx, index) {
-                      return ManageProductItem(
-                        _products[index].data['imageUrl'],
-                        _products[index].data['name'],
-                        _products[index].data,
-                      );
-                    },
-                  );
-                },
+      body: _isLoading
+          ? Center(
+              child: SpinKitThreeBounce(
+                color: Theme.of(context).primaryColor,
+                size: 30.0,
               ),
-      ),
+            )
+          : Container(
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+              child: _products.length == 0
+                  ? Container(
+                      child: Center(
+                        child: Text('No products'),
+                      ),
+                    )
+                  : FutureBuilder(
+                      future: _getProducts(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.none &&
+                            snapshot.connectionState ==
+                                ConnectionState.waiting &&
+                            snapshot.hasData == null) {
+                          return Center(
+                            child: SpinKitThreeBounce(
+                              color: Theme.of(context).primaryColor,
+                              size: 30.0,
+                            ),
+                          );
+                        }
+                        return ListView.builder(
+                          itemCount: _products.length,
+                          itemBuilder: (ctx, index) {
+                            return ManageProductItem(
+                              _products[index].data['imageUrl'],
+                              _products[index].data['name'],
+                              _products[index].data,
+                            );
+                          },
+                        );
+                      },
+                    ),
+            ),
     );
   }
 }
