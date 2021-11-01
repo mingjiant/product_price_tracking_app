@@ -30,11 +30,13 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = true;
       });
       if (isLogin) {
+        // For user login
         authResult = await _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       } else {
+        // For user sign up
         authResult = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,

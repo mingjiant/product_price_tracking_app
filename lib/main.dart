@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
         errorColor: Colors.red,
       ),
       home: StreamBuilder(
+          // Check if the user is logged in
           stream: FirebaseAuth.instance.onAuthStateChanged,
           builder: (ctx, userSnapshot) {
             if (userSnapshot.connectionState == ConnectionState.waiting) {
