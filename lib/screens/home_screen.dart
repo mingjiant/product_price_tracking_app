@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../screens/product_listing_screen.dart';
 import '../screens/product_detail_screen.dart';
 import '../widgets/ads_banner.dart';
-// import '../widgets/product_item.dart';
+import '../widgets/product_item.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -19,7 +20,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
-  List _products;
+  List _products = [];
+  Future selectedProducts;
 
   List cardList = [
     AdsBanner('./assets/images/banner1.jpg'),
@@ -44,6 +46,37 @@ class _HomeScreenState extends State<HomeScreen> {
       barcode = 'Failed to get platform version';
     }
     return barcode;
+  }
+
+  _getProducts() async {
+    try {
+      var _collectionReference = await Firestore.instance
+          .collection('products')
+          .where('category', isEqualTo: "Health")
+          .getDocuments();
+
+      if (this.mounted) {
+        setState(() {
+          _products = _collectionReference.documents;
+        });
+      }
+
+      return _collectionReference.documents;
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  @override
+  void dispose() {
+    _products = [];
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    selectedProducts = _getProducts();
+    super.didChangeDependencies();
   }
 
   @override
@@ -248,9 +281,45 @@ class _HomeScreenState extends State<HomeScreen> {
             //         return ProductItem(name, image);
             //       }),
             // ),
-            SizedBox(
-              height: 10,
-            )
+            _products.length == 0
+                ? SizedBox()
+                : FutureBuilder(
+                    future: _getProducts(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.none &&
+                          snapshot.connectionState == ConnectionState.waiting &&
+                          snapshot.hasData == null) {
+                        return Center(
+                          child: SpinKitThreeBounce(
+                            color: Theme.of(context).primaryColor,
+                            size: 30.0,
+                          ),
+                        );
+                      }
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        child: GridView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
+                            childAspectRatio: 1.55 / 2,
+                          ),
+                          itemCount: _products.length,
+                          itemBuilder: (ctx, index) {
+                            return ProductItem(
+                              _products[index].data['name'],
+                              _products[index].data['imageUrl'],
+                              _products[index].data,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),
