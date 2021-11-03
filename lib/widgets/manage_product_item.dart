@@ -10,6 +10,7 @@ class ManageProductItem extends StatelessWidget {
 
   ManageProductItem(this.image, this.name, this.prodData);
 
+  // Delete the selected product from the database
   void _deleteProduct() async {
     await Firestore.instance
         .collection('products')

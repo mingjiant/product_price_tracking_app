@@ -83,6 +83,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
   }
 
+  // Retrieve all the product pricing information
   _getRetailPrice() async {
     try {
       var _collectionReference = await Firestore.instance
@@ -106,6 +107,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void _editProduct() async {
     FocusScope.of(context).unfocus();
     var imageUrl;
+
+    // Store the updated product image in Firebase Storage
     final imgRef = FirebaseStorage.instance.ref().child('product_images').child(
         widget.prodData['productID'] +
             '/' +
@@ -114,12 +117,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     if (_productImageFile != null) {
       await imgRef.putFile(_productImageFile).onComplete;
+      // Get the new imageURL for the image uploaded
       imageUrl = await imgRef.getDownloadURL();
     }
     setState(() {
       _isLoading = true;
     });
     try {
+      // Query for update product information
       await Firestore.instance
           .collection('products')
           .document(widget.prodData['productID'])

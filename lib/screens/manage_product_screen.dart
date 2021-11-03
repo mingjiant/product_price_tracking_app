@@ -16,6 +16,7 @@ class _ManageProductScreenState extends State<ManageProductScreen> {
   Future selectedProducts;
   var _isLoading = false;
 
+  // Retrieve products from Cloud Firestore
   _getProducts() async {
     try {
       _isLoading = true;

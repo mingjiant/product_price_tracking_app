@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
 
+  // For user logout
   Future signOut() async {
     try {
       return await FirebaseAuth.instance.signOut();

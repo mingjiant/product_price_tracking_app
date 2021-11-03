@@ -110,8 +110,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _isLoading = true;
       });
 
+      // Get the document ID
       var docRef =
           Firestore.instance.collection('products').document().documentID;
+
+      // Store the product image in Firebase Storage
       final imgRef = FirebaseStorage.instance
           .ref()
           .child('product_images')
@@ -119,6 +122,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       await imgRef.putFile(_productImageFile).onComplete;
 
+      // Get the imageURL for the image uploaded
       final imageUrl = await imgRef.getDownloadURL();
 
       // List retailerPriceList = [];
@@ -135,6 +139,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       //   'retailPrices': FieldValue.arrayUnion(retailerPriceList),
       // });
 
+      // Query for adding product to Cloud Firestore
       await Firestore.instance.collection('products').document(docRef).setData({
         'productID': docRef,
         'name': _nameController.text.trim(),
@@ -142,6 +147,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         'category': _selectedValue,
         'imageUrl': imageUrl,
       }).then((value) {
+        // Get the ID for the sub-collection document
         var docId = Firestore.instance
             .collection('products')
             .document(docRef)
@@ -149,6 +155,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             .document()
             .documentID;
 
+        // Storing retailer and price information in sub-collection
         Firestore.instance
             .collection('products')
             .document(docRef)
@@ -186,6 +193,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     }
   }
 
+  // Retrieve products for barcode checking
   _getProducts() async {
     try {
       var _collectionReference =

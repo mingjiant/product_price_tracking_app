@@ -254,33 +254,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            // Container(
-            //   alignment: Alignment.centerLeft,
-            //   margin: const EdgeInsets.only(left: 20),
-            //   child: Text(
-            //     'Featured products',
-            //     style: TextStyle(
-            //       fontWeight: FontWeight.bold,
-            //       fontSize: 16,
-            //     ),
-            //   ),
-            // ),
-            // Container(
-            //   margin: const EdgeInsets.symmetric(horizontal: 5),
-            //   child: GridView.builder(
-            //       shrinkWrap: true,
-            //       physics: NeverScrollableScrollPhysics(),
-            //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            //         crossAxisCount: 2,
-            //         crossAxisSpacing: 5,
-            //         mainAxisSpacing: 5,
-            //         childAspectRatio: 1.5 / 2,
-            //       ),
-            //       itemCount: 6,
-            //       itemBuilder: (ctx, index) {
-            //         return ProductItem(name, image);
-            //       }),
-            // ),
+            Container(
+              alignment: Alignment.centerLeft,
+              margin: const EdgeInsets.only(left: 20),
+              child: Text(
+                'Featured products',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
             _products.length == 0
                 ? SizedBox()
                 : FutureBuilder(
@@ -306,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 5,
                             mainAxisSpacing: 5,
-                            childAspectRatio: 1.55 / 2,
+                            childAspectRatio: 1.40 / 2,
                           ),
                           itemCount: _products.length,
                           itemBuilder: (ctx, index) {
