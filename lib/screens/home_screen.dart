@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   int _selectedIndex = 0;
   List _products = [];
+  List _product = [];
   Future selectedProducts;
 
   List cardList = [
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _products = [];
+    _product = [];
     super.dispose();
   }
 
@@ -102,18 +104,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   if (this.mounted) {
                     setState(() {
-                      _products = _collectionReference.documents;
+                      _product = _collectionReference.documents;
                     });
                   }
 
                   if (value == '-1') {
                     return null;
-                  } else if (_products.isNotEmpty) {
+                  } else if (_product.isNotEmpty) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            ProductDetailScreen(prodData: _products[0].data),
+                            ProductDetailScreen(prodData: _product[0].data),
                       ),
                     );
                   } else {
