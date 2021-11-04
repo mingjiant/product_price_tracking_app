@@ -41,11 +41,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  // Add a new retailer price
   void _addRetailPrice(
     String retailer,
     double price,
   ) async {
     try {
+      // Retrieving the document ID from sub-collection
       var docId = Firestore.instance
           .collection('products')
           .document(widget.prodData['productID'])
@@ -53,6 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           .document()
           .documentID;
 
+      // Add a new document inside the sub-collection
       await Firestore.instance
           .collection('products')
           .document(widget.prodData['productID'])
@@ -374,6 +377,7 @@ class _UpdatePriceDialogState extends State<UpdatePriceDialog> {
     super.initState();
   }
 
+  // Update product pricing for a selected retailer
   void _submit(String prodID, String id, double price) async {
     FocusScope.of(context).unfocus();
     await Firestore.instance

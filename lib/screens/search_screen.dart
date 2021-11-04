@@ -17,6 +17,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List _products = [];
   List _searchResult = [];
 
+  // Retrieve all the products from Firestore
   _getProducts() async {
     try {
       var _collectionReference =
@@ -33,6 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  // Loop through the product list based on the search key
   void searchProduct(String searchKey) {
     _searchResult.clear();
     for (int i = 0; i < _products.length; i++) {
@@ -137,6 +139,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return ListTile(
             title: Text(_searchResult[index].data['name']),
             onTap: () {
+              // Navigate to the product detail screen for the selected product
               Navigator.push(
                 context,
                 MaterialPageRoute(

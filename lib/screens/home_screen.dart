@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return result;
   }
 
+  // Barcode scanner
   Future<String> _barcodeScanner() async {
     String barcode;
     try {
@@ -96,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.qr_code_scanner_rounded),
             onPressed: () {
               _barcodeScanner().then(
+                // Get the matching product based on the barcode from Firestore
                 (value) async {
                   var _collectionReference = await Firestore.instance
                       .collection('products')
@@ -111,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (value == '-1') {
                     return null;
                   } else if (_product.isNotEmpty) {
+                    // Navigate to the product detail screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -119,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   } else {
+                    // If no matching product found
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
