@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.product_price_tracking_app">
+    <uses-permission android:name="android.permission.CAMERA"/>
    <application
         android:label="product_price_tracking_app"
         android:icon="@mipmap/ic_launcher">
