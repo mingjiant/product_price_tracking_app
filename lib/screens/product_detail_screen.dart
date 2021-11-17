@@ -21,6 +21,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   var _isLoading = false;
   // var _isFavourite = false;
 
+  // Retrieve all the product pricing from Firestore database
   _getRetailPrice() async {
     try {
       var _collectionReference = await Firestore.instance

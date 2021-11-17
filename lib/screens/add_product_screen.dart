@@ -54,6 +54,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.dispose();
   }
 
+  // Get all the categories from the list
   void _loadCategories() {
     var categories = ProductCategories;
     categories.forEach((category) {
@@ -68,6 +69,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
+  // Get all the retailers from the list
   void _loadRetailers() {
     var retailers = retailerList;
     retailers.forEach((retailer) {
@@ -86,6 +88,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _productImageFile = image;
   }
 
+  // Barcode scanner for obtaining barcode from product packaging
   Future<void> _barcodeScanner() async {
     String barcode;
     try {
@@ -103,6 +106,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     });
   }
 
+  // Add product to the Firestore database
   void _addProduct() async {
     FocusScope.of(context).unfocus();
     try {
@@ -175,6 +179,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         message = error.message;
       }
 
+      // Display error message
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -215,6 +220,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          // Close the add product form
           icon: Icon(Icons.close),
           onPressed: () {
             Navigator.of(context).pop();
@@ -223,14 +229,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
         centerTitle: true,
         title: Text('Add Product'),
         actions: [
+          // Submit the add product form
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
+              // Validation before executing the add product function
               if (_formKey.currentState.validate() &&
                   _productImageFile != null) {
                 _addProduct();
                 Navigator.pop(context);
               } else {
+                // Display alert dialog when users did not upload an image
                 if (_productImageFile == null) {
                   showDialog(
                     context: context,
@@ -400,6 +409,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter a barcode';
                                         } else {
+                                          // To validate if input barcode matches with any barcodes in the database record
                                           for (int i = 0;
                                               i < _products.length;
                                               i++) {

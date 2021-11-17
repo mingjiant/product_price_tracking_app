@@ -28,6 +28,7 @@ class _AuthCardState extends State<AuthCard> {
 
   final _passwordController = TextEditingController();
 
+  // Submit function with all the values entered by the users
   void _submit() {
     final isValid = _formKey.currentState.validate();
     FocusScope.of(context).unfocus();

@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return result;
   }
 
-  // Barcode scanner
+  // Barcode scanner for searching a product
   Future<String> _barcodeScanner() async {
     String barcode;
     try {
@@ -50,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return barcode;
   }
 
+  // Retrieve products from Firestore database
   _getProducts() async {
     try {
       var _collectionReference = await Firestore.instance
@@ -89,10 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         title: Text('EasyTrack'),
         actions: [
+          // For search screen
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () => Navigator.pushNamed(context, '/search'),
           ),
+          // For barcode scanner
           IconButton(
             icon: Icon(Icons.qr_code_scanner_rounded),
             onPressed: () {

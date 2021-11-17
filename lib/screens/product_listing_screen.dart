@@ -17,6 +17,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   Future selectedProducts;
   var _isLoading = false;
 
+  // Retrieve all the products stored in Firestore database based on the category
   _getProducts() async {
     try {
       _isLoading = true;

@@ -52,6 +52,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
+  // Get all the categories from the list
   void _loadCategories() {
     var categories = ProductCategories;
     categories.forEach((category) {
@@ -66,6 +67,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
   }
 
+  // Barcode scanner for obtaining barcode from product packaging
   Future<void> _barcodeScanner() async {
     String barcode;
     try {
@@ -104,6 +106,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
+  // Edit product query
   void _editProduct() async {
     FocusScope.of(context).unfocus();
     var imageUrl;
@@ -144,6 +147,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         message = error.message;
       }
 
+      // Display errors
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -162,6 +166,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
   }
 
+  // For taking image using camera
   void _pickImage() async {
     try {
       final picker = ImagePicker();
@@ -176,6 +181,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
+  // For uploading image through gallery
   void _pickImageGallery() async {
     try {
       final picker = ImagePicker();
@@ -201,6 +207,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          // Close the edit form
           icon: Icon(Icons.close),
           onPressed: () {
             Navigator.of(context).pop();
@@ -209,9 +216,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
         centerTitle: true,
         title: Text('Edit Product'),
         actions: [
+          // Submit the form
           IconButton(
             icon: Icon(Icons.check),
             onPressed: () {
+              // Validate the form before submitting
               if (_formKey.currentState.validate()) {
                 _editProduct();
                 Navigator.pop(context);

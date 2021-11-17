@@ -49,6 +49,7 @@ class ManageProductItem extends StatelessWidget {
           width: 100,
           child: Row(
             children: [
+              // Edit product
               IconButton(
                 icon: Icon(Icons.edit),
                 onPressed: () {
@@ -62,6 +63,7 @@ class ManageProductItem extends StatelessWidget {
                 },
                 color: Theme.of(context).primaryColor,
               ),
+              // Delete product
               IconButton(
                 icon: Icon(Icons.delete),
                 onPressed: () {

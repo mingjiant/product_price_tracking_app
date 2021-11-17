@@ -17,6 +17,7 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
   File _pickedImage;
   var _isLoading = false;
 
+  // Take image using camera
   void _pickImage() async {
     try {
       final picker = ImagePicker();
@@ -32,6 +33,7 @@ class _ProductImagePickerState extends State<ProductImagePicker> {
     }
   }
 
+  // Upload image from gallery
   void _pickImageGallery() async {
     try {
       final picker = ImagePicker();

@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
           // Check if the user is logged in
           stream: FirebaseAuth.instance.onAuthStateChanged,
           builder: (ctx, userSnapshot) {
+            // Display different screens based on the authentication status
             if (userSnapshot.connectionState == ConnectionState.waiting) {
               return SplashScreen();
             }

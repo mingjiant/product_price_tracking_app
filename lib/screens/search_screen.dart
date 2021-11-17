@@ -93,6 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onChanged: searchProduct,
             ),
           ),
+          // Clear all the search keywords
           IconButton(
             onPressed: () {
               setState(() {

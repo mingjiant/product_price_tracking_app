@@ -17,6 +17,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   var _isLoading = false;
 
+  // Sign in the users or Sign up a new account for users
   void _submitAuthForm(
     String email,
     String password,
@@ -55,6 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
         message = error.message;
       }
 
+      // Display errors
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
